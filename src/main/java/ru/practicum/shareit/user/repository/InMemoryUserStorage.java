@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.repository;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UserWithSuchEmailAlreadyExistException;
@@ -12,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Repository
 public class InMemoryUserStorage implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
@@ -20,7 +18,7 @@ public class InMemoryUserStorage implements UserRepository {
 
     @Override
     public User add(User user) {
-        checkEmailExist(user.getEmail());
+        checkEmailExistence(user.getEmail());
         long id = currentId++;
         user.setId(id);
         users.put(id, user);
@@ -30,12 +28,12 @@ public class InMemoryUserStorage implements UserRepository {
     @Override
     public User update(User user) {
         long id = user.getId();
-        this.checkUserExist(id);
+        this.checkUserExistence(id);
         User savedUser = users.get(id);
 
         String email = user.getEmail();
         if (email != null && !email.equals(savedUser.getEmail())) {
-            checkEmailExist(email);
+            checkEmailExistence(email);
             savedUser.setEmail(email);
         }
         String name = user.getName();
@@ -48,13 +46,13 @@ public class InMemoryUserStorage implements UserRepository {
 
     @Override
     public void delete(long id) {
-        this.checkUserExist(id);
+        this.checkUserExistence(id);
         users.remove(id);
     }
 
     @Override
     public User get(long id) {
-        this.checkUserExist(id);
+        this.checkUserExistence(id);
         return users.get(id);
     }
 
@@ -64,10 +62,10 @@ public class InMemoryUserStorage implements UserRepository {
     }
 
     @Override
-    public void checkUserExist(long id) {
+    public void checkUserExistence(long id) {
         if (!users.containsKey(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
-                    .reason(InMemoryUserStorage.class.getName())
+                    .reason("User repository")
                     .message("User with id " + id + " does not exist!")
                     .build()
             );
@@ -75,12 +73,13 @@ public class InMemoryUserStorage implements UserRepository {
     }
 
     @Override
-    public void checkEmailExist(String email) {
+    public void checkEmailExistence(String email) {
         if (!emailIsUnique(email)) {
             throw new UserWithSuchEmailAlreadyExistException(ErrorResponse.builder()
-                    .reason(InMemoryUserStorage.class.getName())
+                    .reason("User repository")
                     .message("User with email " + email + " already exist!")
-                    .build());
+                    .build()
+            );
         }
     }
 

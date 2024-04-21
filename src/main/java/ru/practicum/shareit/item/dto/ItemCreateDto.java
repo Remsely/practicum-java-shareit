@@ -5,21 +5,20 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 @Data
 @Builder
-public class ItemDto {
-    @Positive
+public class ItemCreateDto {
     private long id;
 
-    @NotNull
     @NotBlank
     private String name;
 
-    @Size(max = 100)
+    @NotBlank
+    @Size(max = 200)
     private String description;
 
-    private boolean available;
+    @NotNull
+    private Boolean available;
 }

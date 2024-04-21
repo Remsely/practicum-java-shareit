@@ -21,7 +21,7 @@ public class Item {
     @Size(max = 100)
     private String description;
 
-    private boolean available;
+    private Boolean available;
 
     private long ownerId;
 }

@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -51,8 +50,6 @@ public class UserController {
     @GetMapping
     public List<UserDefaultDto> getAllUsers() {
         log.info("GET /users");
-        return userService.getUsers().stream()
-                .map(UserMapper::toDto)
-                .collect(Collectors.toList());
+        return UserMapper.toDtoList(userService.getUsers());
     }
 }
