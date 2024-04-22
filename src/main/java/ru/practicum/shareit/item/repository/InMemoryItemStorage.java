@@ -57,7 +57,7 @@ public class InMemoryItemStorage implements ItemRepository {
     }
 
     @Override
-    public List<Item> getByUser(long user) {
+    public List<Item> getByUserId(long user) {
         return items.values().stream()
                 .filter(i -> i.getOwnerId() == user)
                 .collect(Collectors.toList());
@@ -80,6 +80,11 @@ public class InMemoryItemStorage implements ItemRepository {
                     .build()
             );
         }
+    }
+
+    @Override
+    public void deleteUserItems(long userId) {
+        items.entrySet().removeIf(entry -> entry.getValue().getOwnerId() == userId);
     }
 
     private void checkOwner(Item item, long userId) {

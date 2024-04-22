@@ -49,7 +49,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> getUserItems(long userId) {
         userRepository.checkUserExistence(userId);
-        List<Item> items = itemRepository.getByUser(userId);
+        List<Item> items = itemRepository.getByUserId(userId);
         log.info("get user's Items: the list of items of the user with id {} has been received. List : {}.",
                 userId, items);
         return items;

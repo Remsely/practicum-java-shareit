@@ -18,13 +18,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
+    private final ItemMapper itemMapper;
 
     @PostMapping
     public ItemDefaultDto addItem(@Valid @RequestBody ItemCreateDto itemDto,
                                   @RequestHeader("X-Sharer-User-id") long userId) {
         log.info("Post /items. Request body : {}", itemDto);
-        Item item = ItemMapper.fromDto(itemDto);
-        return ItemMapper.toDto(itemService.addItem(item, userId));
+        Item item = itemMapper.fromDto(itemDto);
+        return itemMapper.toDto(itemService.addItem(item, userId));
     }
 
     @PatchMapping("/{id}")
@@ -32,20 +33,20 @@ public class ItemController {
                                      @PathVariable long id,
                                      @RequestHeader("X-Sharer-User-id") long userId) {
         log.info("Patch /items/{} (X-Sharer-User-id = {}). Request body : {}", id, userId, itemDto);
-        Item item = ItemMapper.fromDto(itemDto);
-        return ItemMapper.toDto(itemService.updateItem(item, id, userId));
+        Item item = itemMapper.fromDto(itemDto);
+        return itemMapper.toDto(itemService.updateItem(item, id, userId));
     }
 
     @GetMapping("/{id}")
     public ItemDefaultDto getItem(@PathVariable long id) {
         log.info("GET /items/{}", id);
-        return ItemMapper.toDto(itemService.getItem(id));
+        return itemMapper.toDto(itemService.getItem(id));
     }
 
     @GetMapping
     public List<ItemDefaultDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items (X-Sharer-User-id = {})", userId);
-        return ItemMapper.toDtoList(itemService.getUserItems(userId));
+        return itemMapper.toDtoList(itemService.getUserItems(userId));
     }
 
     @GetMapping("/search")
@@ -54,6 +55,6 @@ public class ItemController {
         if (text == null || text.isEmpty()) {
             return List.of();
         }
-        return ItemMapper.toDtoList(itemService.searchItems(text));
+        return itemMapper.toDtoList(itemService.searchItems(text));
     }
 }

@@ -18,27 +18,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    // Решил использовать мапперы в контроллерах, т. к. если у нас будет несколько dto для разных запросов, то неудобно
-    // будет возвращать их всех из сервиса. Правильно мыслю?
+    private final UserMapper userMapper;
 
     @PostMapping
     public UserDefaultDto createUser(@Valid @RequestBody UserCreateDto userDto) {
         log.info("POST /users. Request body : {}", userDto);
-        User user = UserMapper.fromDto(userDto);
-        return UserMapper.toDto(userService.addUser(user));
+        User user = userMapper.fromDto(userDto);
+        return userMapper.toDto(userService.addUser(user));
     }
 
     @PatchMapping("/{id}")
     public UserDefaultDto updateUser(@Valid @RequestBody UserDefaultDto userDto, @PathVariable long id) {
         log.info("PATCH /users/{}", userDto);
-        User user = UserMapper.fromDto(userDto);
-        return UserMapper.toDto(userService.updateUser(user, id));
+        User user = userMapper.fromDto(userDto);
+        return userMapper.toDto(userService.updateUser(user, id));
     }
 
     @GetMapping("/{id}")
     public UserDefaultDto getUser(@PathVariable long id) {
         log.info("GET /users/{}", id);
-        return UserMapper.toDto(userService.getUser(id));
+        return userMapper.toDto(userService.getUser(id));
     }
 
     @DeleteMapping("/{id}")
@@ -50,6 +49,6 @@ public class UserController {
     @GetMapping
     public List<UserDefaultDto> getAllUsers() {
         log.info("GET /users");
-        return UserMapper.toDtoList(userService.getUsers());
+        return userMapper.toDtoList(userService.getUsers());
     }
 }

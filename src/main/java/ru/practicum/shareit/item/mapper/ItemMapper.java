@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class ItemMapper {
-    public static ItemDefaultDto toDto(Item item) {
+    public ItemDefaultDto toDto(Item item) {
         return ItemDefaultDto.builder()
                 .id(item.getId())
                 .name(item.getName())
@@ -19,7 +19,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item fromDto(ItemDefaultDto itemDto) {
+    public Item fromDto(ItemDefaultDto itemDto) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
@@ -28,7 +28,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item fromDto(ItemCreateDto itemDto) {
+    public Item fromDto(ItemCreateDto itemDto) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
@@ -37,9 +37,9 @@ public class ItemMapper {
                 .build();
     }
 
-    public static List<ItemDefaultDto> toDtoList(List<Item> items) {
+    public List<ItemDefaultDto> toDtoList(List<Item> items) {
         return items.stream()
-                .map(ItemMapper::toDto)
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 }

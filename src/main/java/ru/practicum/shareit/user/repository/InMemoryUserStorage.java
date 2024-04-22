@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.repository;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserWithSuchEmailAlreadyExistException;
+import ru.practicum.shareit.exception.UserAlreadyExistException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.user.model.User;
 
@@ -75,7 +75,7 @@ public class InMemoryUserStorage implements UserRepository {
     @Override
     public void checkEmailExistence(String email) {
         if (!emailIsUnique(email)) {
-            throw new UserWithSuchEmailAlreadyExistException(ErrorResponse.builder()
+            throw new UserAlreadyExistException(ErrorResponse.builder()
                     .reason("User repository")
                     .message("User with email " + email + " already exist!")
                     .build()

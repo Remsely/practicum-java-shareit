@@ -11,9 +11,11 @@ public interface ItemRepository {
 
     Item get(long id);
 
-    List<Item> getByUser(long user);
+    List<Item> getByUserId(long user);
 
     List<Item> search(String query);
 
     void checkItemExistence(long id);
+
+    void deleteUserItems(long userId);
 }

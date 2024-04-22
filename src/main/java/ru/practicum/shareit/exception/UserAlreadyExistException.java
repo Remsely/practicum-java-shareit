@@ -6,6 +6,6 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Getter
 @RequiredArgsConstructor
-public class UserWithSuchEmailAlreadyExistException extends RuntimeException {
+public class UserAlreadyExistException extends RuntimeException {
     private final ErrorResponse errorResponse;
 }
