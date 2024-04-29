@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserIdWithoutAccessRightsException;
+import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
@@ -23,13 +23,14 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public Item addItem(Item item, long userId) {
-        item.setOwner(userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
-                ErrorResponse.builder()
-                        .reason("User repository")
-                        .message("User with id " + userId + " does not exist!")
-                        .build()
-        )));
-
+        item.setOwner(userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("User repository")
+                                .message("User with id " + userId + " does not exist!")
+                                .build()
+                ))
+        );
         Item addedItem = itemRepository.save(item);
         log.info("add Item: an item with an id {} and owner id {} has been added. Item : {}.",
                 addedItem.getId(), userId, addedItem);
@@ -39,18 +40,18 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public Item updateItem(Item item, long itemId, long userId) {
+        Item itemToUpdate = itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException(
+                ErrorResponse.builder()
+                        .reason("Item repository")
+                        .message("Item with id " + itemId + " does not exist!")
+                        .build()
+        ));
         item.setOwner(userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("User repository")
                         .message("User with id " + userId + " does not exist!")
                         .build()
         )));
-        Item itemToUpdate = itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException(
-                ErrorResponse.builder()
-                        .reason("Item repository")
-                        .message("Item with id " + itemId + " already exist!")
-                        .build()
-        ));
         checkPermission(userId, itemToUpdate);
         updateNonNullProperties(itemToUpdate, item);
 
@@ -66,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("Item repository")
-                        .message("Item with id " + id + " already exist!")
+                        .message("Item with id " + id + " does not exist!")
                         .build()
         ));
         log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), item);
@@ -120,9 +121,9 @@ public class ItemServiceImpl implements ItemService {
 
     private void checkPermission(long userId, Item item) {
         if (!item.getOwner().getId().equals(userId)) {
-            throw new UserIdWithoutAccessRightsException(ErrorResponse.builder()
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
-                    .message("The user with id " + userId + " does not have access to this item")
+                    .message("The user with id " + userId + " does not have access to this item!")
                     .build());
         }
     }

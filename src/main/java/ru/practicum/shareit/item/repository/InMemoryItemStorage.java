@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserIdWithoutAccessRightsException;
+import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.model.Item;
 
@@ -89,7 +89,7 @@ public class InMemoryItemStorage implements ItemRepository {
 
     private void checkOwner(Item item, long userId) {
         if (item.getOwner().getId() != userId) {
-            throw new UserIdWithoutAccessRightsException(ErrorResponse.builder()
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .message("The user with id " + userId + " does not have access to this item")
                     .build());

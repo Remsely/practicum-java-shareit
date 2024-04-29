@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
+    @Query(" select i from Item i join fetch i.owner where i.owner = ?1")
     List<Item> findByOwner(User owner);
 
     @Query(" select i from Item i " +
