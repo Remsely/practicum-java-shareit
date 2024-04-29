@@ -3,8 +3,8 @@ package ru.practicum.shareit.user.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserCreateDto;
-import ru.practicum.shareit.user.dto.UserDefaultDto;
+import ru.practicum.shareit.user.dto.UserCreationDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -21,21 +21,21 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping
-    public UserDefaultDto createUser(@Valid @RequestBody UserCreateDto userDto) {
+    public UserDto createUser(@Valid @RequestBody UserCreationDto userDto) {
         log.info("POST /users. Request body : {}", userDto);
-        User user = userMapper.fromDto(userDto);
+        User user = userMapper.toEntity(userDto);
         return userMapper.toDto(userService.addUser(user));
     }
 
     @PatchMapping("/{id}")
-    public UserDefaultDto updateUser(@Valid @RequestBody UserDefaultDto userDto, @PathVariable long id) {
-        log.info("PATCH /users/{}", userDto);
-        User user = userMapper.fromDto(userDto);
+    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable long id) {
+        log.info("PATCH /users/{}. Request body : {}", id, userDto);
+        User user = userMapper.toEntity(userDto);
         return userMapper.toDto(userService.updateUser(user, id));
     }
 
     @GetMapping("/{id}")
-    public UserDefaultDto getUser(@PathVariable long id) {
+    public UserDto getUser(@PathVariable long id) {
         log.info("GET /users/{}", id);
         return userMapper.toDto(userService.getUser(id));
     }
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDefaultDto> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         log.info("GET /users");
         return userMapper.toDtoList(userService.getUsers());
     }

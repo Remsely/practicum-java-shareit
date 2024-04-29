@@ -19,7 +19,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item addItem(Item item, long userId) {
         userRepository.checkUserExistence(userId);
-        item.setOwnerId(userId);
+        item.setOwner(userRepository.get(userId));
 
         Item addedItem = itemRepository.add(item);
         log.info("add Item: an item with an id {} and owner id {} has been added. Item : {}.",
@@ -30,7 +30,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item updateItem(Item item, long itemId, long userId) {
         userRepository.checkUserExistence(userId);
-        item.setOwnerId(userId);
+        item.setOwner(userRepository.get(userId));
         item.setId(itemId);
 
         Item updatedItem = itemRepository.update(item);

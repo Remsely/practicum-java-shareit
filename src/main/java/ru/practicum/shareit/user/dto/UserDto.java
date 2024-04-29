@@ -7,7 +7,7 @@ import javax.validation.constraints.Email;
 
 @Data
 @Builder
-public class UserDefaultDto {
+public class UserDto {
     private long id;
 
     private String name;

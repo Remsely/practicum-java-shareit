@@ -1,27 +1,33 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.persistence.*;
 
+
+@Entity
+@Table(name = "items")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
-    @Positive
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotNull
-    @NotBlank
+    @Column(nullable = false)
     private String name;
 
-    @Size(max = 100)
     private String description;
 
+    @Column(nullable = false)
     private Boolean available;
 
-    private long ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User owner;
 }
