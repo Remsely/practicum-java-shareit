@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserAlreadyExistException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
@@ -22,7 +21,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User addUser(User user) {
-        checkEmailExistence(user.getEmail());
         User addedUser = userRepository.save(user);
         log.info("add User: a user with an id {} has been added. User : {}.", addedUser.getId(), addedUser);
         return addedUser;
@@ -73,16 +71,6 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
-    private void checkEmailExistence(String email) {
-        if (userRepository.existsByEmail(email)) {
-            throw new UserAlreadyExistException(ErrorResponse.builder()
-                    .reason("User repository")
-                    .message("User with email " + email + " already exist!")
-                    .build()
-            );
-        }
-    }
-
     private void checkUserExistence(Long id) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
@@ -96,7 +84,6 @@ public class UserServiceImpl implements UserService {
     private void updateNonNullProperties(User existingUser, User newUser) {
         final String newEmail = newUser.getEmail();
         if (newEmail != null && !newEmail.equals(existingUser.getEmail())) {
-            checkEmailExistence(newEmail);
             existingUser.setEmail(newUser.getEmail());
         }
         if (newUser.getName() != null) {
