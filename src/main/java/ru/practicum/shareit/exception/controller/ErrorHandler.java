@@ -29,7 +29,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserWithoutAccess(UserWithoutAccessRightsException e) {
         ErrorResponse errorResponse = e.getErrorResponse();
         log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
@@ -55,6 +55,14 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleIllegalState(IllegalStateException e) {
+        ErrorResponse errorResponse = e.getErrorResponse();
+        log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
+        return errorResponse;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAlreadyApproved(AlreadyApprovedException e) {
         ErrorResponse errorResponse = e.getErrorResponse();
         log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
         return errorResponse;

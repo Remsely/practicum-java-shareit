@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
         ));
         updateNonNullProperties(userToUpdate, user);
         User updatedUser = userRepository.save(userToUpdate);
-
         log.info("update User: a user with an id {} has been updated. User : {}.", updatedUser.getId(), updatedUser);
         return updatedUser;
     }

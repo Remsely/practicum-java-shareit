@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.controller.BookingState;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.exception.AlreadyApprovedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
@@ -47,6 +48,12 @@ public class BookingServiceImpl implements BookingService {
                                 .build()
                 ))
         );
+        if (booking.getItem().getOwner().getId() == userId) {
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
+                    .reason("Forbidden for this id")
+                    .error("The user with id " + userId + " does not have access to this booking!")
+                    .build());
+        }
         if (!booking.getItem().getAvailable()) {
             throw new UnavailableItemException(
                     ErrorResponse.builder()
@@ -75,6 +82,12 @@ public class BookingServiceImpl implements BookingService {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")
+                    .build());
+        }
+        if (bookingToUpdate.getStatus() != BookingStatus.WAITING) {
+            throw new AlreadyApprovedException(ErrorResponse.builder()
+                    .reason("Booking status")
+                    .error("The booking request has already been approved!")
                     .build());
         }
         bookingToUpdate.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
