@@ -66,7 +66,7 @@ public class InMemoryUserStorage implements UserRepository {
         if (!users.containsKey(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
                     .reason("User repository")
-                    .message("User with id " + id + " does not exist!")
+                    .error("User with id " + id + " does not exist!")
                     .build()
             );
         }
@@ -77,7 +77,7 @@ public class InMemoryUserStorage implements UserRepository {
         if (!emailIsUnique(email)) {
             throw new UserAlreadyExistException(ErrorResponse.builder()
                     .reason("User repository")
-                    .message("User with email " + email + " already exist!")
+                    .error("User with email " + email + " already exist!")
                     .build()
             );
         }

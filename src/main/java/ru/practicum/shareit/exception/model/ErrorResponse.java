@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class ErrorResponse {
     private final String reason;
-    private final String message;
+    private final String error;
 }

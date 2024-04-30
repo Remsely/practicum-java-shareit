@@ -27,7 +27,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("User repository")
-                                .message("User with id " + userId + " does not exist!")
+                                .error("User with id " + userId + " does not exist!")
                                 .build()
                 ))
         );
@@ -43,13 +43,13 @@ public class ItemServiceImpl implements ItemService {
         Item itemToUpdate = itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("Item repository")
-                        .message("Item with id " + itemId + " does not exist!")
+                        .error("Item with id " + itemId + " does not exist!")
                         .build()
         ));
         item.setOwner(userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("User repository")
-                        .message("User with id " + userId + " does not exist!")
+                        .error("User with id " + userId + " does not exist!")
                         .build()
         )));
         checkPermission(userId, itemToUpdate);
@@ -67,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("Item repository")
-                        .message("Item with id " + id + " does not exist!")
+                        .error("Item with id " + id + " does not exist!")
                         .build()
         ));
         log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), item);
@@ -81,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("User repository")
-                                .message("User with id " + userId + " does not exist!")
+                                .error("User with id " + userId + " does not exist!")
                                 .build()
                 )));
         log.info("get user's Items: the list of items of the user with id {} has been received. List : {}.",
@@ -101,7 +101,7 @@ public class ItemServiceImpl implements ItemService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
                     .reason("User repository")
-                    .message("User with id " + id + " does not exist!")
+                    .error("User with id " + id + " does not exist!")
                     .build()
             );
         }
@@ -123,7 +123,7 @@ public class ItemServiceImpl implements ItemService {
         if (!item.getOwner().getId().equals(userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
-                    .message("The user with id " + userId + " does not have access to this item!")
+                    .error("The user with id " + userId + " does not have access to this item!")
                     .build());
         }
     }

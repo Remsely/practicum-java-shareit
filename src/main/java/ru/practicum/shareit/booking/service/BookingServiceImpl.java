@@ -34,7 +34,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("User repository")
-                                .message("User with id " + userId + " does not exist!")
+                                .error("User with id " + userId + " does not exist!")
                                 .build()
                 ))
         );
@@ -43,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("Item repository")
-                                .message("Item with id " + itemId + " does not exist!")
+                                .error("Item with id " + itemId + " does not exist!")
                                 .build()
                 ))
         );
@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
             throw new UnavailableItemException(
                     ErrorResponse.builder()
                             .reason("Unavailable item")
-                            .message("The item with id " + itemId + " is not available for booking")
+                            .error("The item with id " + itemId + " is not available for booking")
                             .build()
             );
         }
@@ -69,12 +69,12 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("Booking repository")
-                                .message("Booking with id " + id + " does not exist!").build()
+                                .error("Booking with id " + id + " does not exist!").build()
                 ));
         if (bookingToUpdate.getItem().getOwner().getId() != userId) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
-                    .message("The user with id " + userId + " does not have access to this booking!")
+                    .error("The user with id " + userId + " does not have access to this booking!")
                     .build());
         }
         bookingToUpdate.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -92,12 +92,12 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("Booking repository")
-                                .message("Booking with id " + bookingId + " does not exist!").build()
+                                .error("Booking with id " + bookingId + " does not exist!").build()
                 ));
         if (booking.getItem().getOwner().getId() != userId && booking.getBooker().getId() != userId) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
-                    .message("The user with id " + userId + " does not have access to this booking!")
+                    .error("The user with id " + userId + " does not have access to this booking!")
                     .build());
         }
         log.info("get Booking: a item booking an id {} has been received. Booking : {}.", booking.getId(), booking);
@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("User repository")
-                                .message("User with id " + userId + " does not exist!")
+                                .error("User with id " + userId + " does not exist!")
                                 .build()
                 ));
         List<Booking> bookings;
@@ -154,7 +154,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("User repository")
-                                .message("User with id " + userId + " does not exist!")
+                                .error("User with id " + userId + " does not exist!")
                                 .build()
                 ));
         List<Booking> bookings;

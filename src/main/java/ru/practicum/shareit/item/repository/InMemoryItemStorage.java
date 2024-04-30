@@ -76,7 +76,7 @@ public class InMemoryItemStorage implements ItemRepository {
         if (!items.containsKey(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
                     .reason("Item repository")
-                    .message("Item with id " + id + " already exist!")
+                    .error("Item with id " + id + " already exist!")
                     .build()
             );
         }
@@ -91,7 +91,7 @@ public class InMemoryItemStorage implements ItemRepository {
         if (item.getOwner().getId() != userId) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
-                    .message("The user with id " + userId + " does not have access to this item")
+                    .error("The user with id " + userId + " does not have access to this item")
                     .build());
         }
     }

@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         User userToUpdate = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("User repository")
-                        .message("User with id " + id + " does not exist!")
+                        .error("User with id " + id + " does not exist!")
                         .build()
         ));
         updateNonNullProperties(userToUpdate, user);
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("User repository")
-                        .message("User with id " + id + " does not exist!")
+                        .error("User with id " + id + " does not exist!")
                         .build()
         ));
         log.info("get User: a user with an id {} has been received. User : {}.", id, user);
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
                     .reason("User repository")
-                    .message("User with id " + id + " does not exist!")
+                    .error("User with id " + id + " does not exist!")
                     .build()
             );
         }

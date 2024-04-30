@@ -9,11 +9,11 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.DatesValidationException;
+import ru.practicum.shareit.exception.IllegalStateException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -50,30 +50,41 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getCurrentUserBookings(
             @RequestHeader("X-Sharer-User-id") long userId,
-            @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+            @RequestParam(required = false, defaultValue = "ALL") String state) {
         log.info("GET /bookings?state={} (X-Sharer-User-id = {})", state, userId);
-        return bookingMapper.toDtoList(bookingService.getUserBookings(userId, state));
+        return bookingMapper.toDtoList(bookingService.getUserBookings(userId, castStateWithExceptionMapping(state)));
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getCurrentUserItemsBookings(
             @RequestHeader("X-Sharer-User-id") long userId,
-            @RequestParam(required = false, defaultValue = "ALL") BookingState state
+            @RequestParam(required = false, defaultValue = "ALL") String state
     ) {
         log.info("GET /bookings/owner?state={} (X-Sharer-User-id = {})", state, userId);
-        return bookingMapper.toDtoList(bookingService.getUserItemsBookings(userId, state));
+        return bookingMapper.toDtoList(bookingService.getUserItemsBookings(
+                userId, castStateWithExceptionMapping(state)));
     }
 
     private void validateDates(LocalDateTime from, LocalDateTime to) {
         if (to.isBefore(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .message("The end date can't be earlier than the start date.").build());
+                    .error("The end date can't be earlier than the start date.").build());
         }
         if (to.isEqual(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .message("The end date can't be equal to the start date.").build());
+                    .error("The end date can't be equal to the start date.").build());
+        }
+    }
+
+    private BookingState castStateWithExceptionMapping(String state) {
+        try {
+            return BookingState.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException(ErrorResponse.builder()
+                    .reason("State parameter")
+                    .error("Unknown state: " + state).build());
         }
     }
 }
