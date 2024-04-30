@@ -3,10 +3,13 @@ package ru.practicum.shareit.item.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.dto.ItemGettingDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -20,6 +23,7 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @PostMapping
     public ItemDto addItem(@Valid @RequestBody ItemCreateDto itemDto,
@@ -39,15 +43,15 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemForOwnerDto getItem(@PathVariable long id, @RequestHeader("X-Sharer-User-id") Long userId) {
+    public ItemGettingDto getItem(@PathVariable long id, @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items/{}", id);
-        return itemService.getItem(id, userId, itemMapper);
+        return itemService.getItem(id, userId, itemMapper, commentMapper);
     }
 
     @GetMapping
-    public List<ItemForOwnerDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
+    public List<ItemGettingDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items (X-Sharer-User-id = {})", userId);
-        return itemService.getUserItems(userId, itemMapper);
+        return itemService.getUserItems(userId, itemMapper, commentMapper);
     }
 
     @GetMapping("/search")
@@ -57,5 +61,14 @@ public class ItemController {
             return List.of();
         }
         return itemMapper.toDtoList(itemService.searchItems(text));
+    }
+
+    @PostMapping("/{id}/comment")
+    public CommentDto addComment(@Valid @RequestBody CommentDto commentDto,
+                              @PathVariable long id,
+                              @RequestHeader("X-Sharer-User-id") Long userId) {
+        log.info("POST /items/{}/comment (X-Sharer-User-id = {}). Request body : {}", id, userId, commentDto);
+        Comment comment = commentMapper.toEntity(commentDto);
+        return commentMapper.toDto(itemService.addComment(comment, id, userId));
     }
 }

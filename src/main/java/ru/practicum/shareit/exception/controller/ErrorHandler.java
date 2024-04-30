@@ -67,4 +67,12 @@ public class ErrorHandler {
         log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
         return errorResponse;
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleItemWasNotRented(ItemWasNotBeRentedException e) {
+        ErrorResponse errorResponse = e.getErrorResponse();
+        log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
+        return errorResponse;
+    }
 }

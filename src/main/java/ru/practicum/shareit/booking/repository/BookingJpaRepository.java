@@ -63,4 +63,7 @@ public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
 
     @EntityGraph(attributePaths = {"booker", "item"})
     List<Booking> findBookingsByItemAndStatus(Item item, BookingStatus status);
+
+    boolean existsByItemAndBookerAndStatusAndEndBefore(
+            Item item, User booker, BookingStatus status, LocalDateTime end);
 }

@@ -3,9 +3,11 @@ package ru.practicum.shareit.item.mapper;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingInsideItemDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.dto.ItemGettingDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -22,14 +24,15 @@ public class ItemMapper {
                 .build();
     }
 
-    public ItemForOwnerDto toDto(Item item, Booking next, Booking last) {
-        return ItemForOwnerDto.builder()
+    public ItemGettingDto toDto(Item item, Booking next, Booking last, List<CommentDto> comments) {
+        return ItemGettingDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .nextBooking(next == null ? null : buildBookerShortDto(next))
                 .lastBooking(last == null ? null : buildBookerShortDto(last))
+                .comments(comments)
                 .build();
     }
 

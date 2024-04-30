@@ -8,11 +8,15 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
-import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.dto.ItemGettingDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentJpaRepository;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
@@ -30,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemJpaRepository itemRepository;
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
+    private final CommentJpaRepository commentRepository;
 
     @Transactional
     @Override
@@ -74,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public ItemForOwnerDto getItem(long id, long userId, ItemMapper itemMapper) {
+    public ItemGettingDto getItem(long id, long userId, ItemMapper itemMapper, CommentMapper commentMapper) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
@@ -90,8 +95,10 @@ public class ItemServiceImpl implements ItemService {
                         .build()
         ));
 
+        List<Comment> comments = commentRepository.findByItem(item);
+
         if (item.getOwner().getId() != userId) {
-            ItemForOwnerDto dto = itemMapper.toDto(item, null, null);
+            ItemGettingDto dto = itemMapper.toDto(item, null, null, commentMapper.toDtoList(comments));
             log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
             return dto;
         }
@@ -116,14 +123,14 @@ public class ItemServiceImpl implements ItemService {
                     .max(Comparator.comparing(Booking::getEnd))
                     .orElse(null);
         }
-        ItemForOwnerDto dto = itemMapper.toDto(item, next, last);
+        ItemGettingDto dto = itemMapper.toDto(item, next, last, commentMapper.toDtoList(comments));
         log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
         return dto;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemForOwnerDto> getUserItems(long userId, ItemMapper itemMapper) {
+    public List<ItemGettingDto> getUserItems(long userId, ItemMapper itemMapper, CommentMapper commentMapper) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
@@ -133,12 +140,15 @@ public class ItemServiceImpl implements ItemService {
                 ));
 
         List<Item> items = itemRepository.findByOwner(owner);
+
+        List<Comment> comments = commentRepository.findByItemIn(items);
+        Map<Item, List<Comment>> commentsByItem = comments.stream().collect(Collectors.groupingBy(Comment::getItem));
+
         List<Booking> bookings = bookingRepository.findBookingsByItemInAndStatusOrderByItem(
                 items, BookingStatus.APPROVED);
-
         Map<Item, List<Booking>> bookingsByItem = bookings.stream().collect(Collectors.groupingBy(Booking::getItem));
 
-        List<ItemForOwnerDto> itemsWithLastAndNextBookings = items.stream()
+        List<ItemGettingDto> itemsWithLastAndNextBookings = items.stream()
                 .map(i -> {
                     List<Booking> bookingsForItem = bookingsByItem.getOrDefault(i, List.of());
 
@@ -160,7 +170,9 @@ public class ItemServiceImpl implements ItemService {
                                 .max(Comparator.comparing(Booking::getEnd))
                                 .orElse(null);
                     }
-                    return itemMapper.toDto(i, next, last);
+                    return itemMapper.toDto(i, next, last, commentMapper.toDtoList(
+                            commentsByItem.getOrDefault(i, List.of())
+                    ));
                 })
                 .collect(Collectors.toList());
 
@@ -175,6 +187,40 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.search(query);
         log.info("The list of items requested by query \"{}\" has been received. List {}.", query, items);
         return items;
+    }
+
+    @Override
+    public Comment addComment(Comment comment, long itemId, long userId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("Item repository")
+                                .error("Item with id " + itemId + " does not exist!")
+                                .build()
+                ));
+        User booker = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("User repository")
+                                .error("User with id " + userId + " does not exist!")
+                                .build()
+                ));
+        if (!bookingRepository.existsByItemAndBookerAndStatusAndEndBefore(
+                item, booker, BookingStatus.APPROVED, LocalDateTime.now())) {
+            throw new ItemWasNotBeRentedException(ErrorResponse.builder()
+                    .reason("Booking repository")
+                    .error("The item with id " + itemId + " was not rented by the user with id " + userId + "!")
+                    .build());
+        }
+        comment.setItem(item);
+        comment.setAuthor(booker);
+        comment.setCreated(LocalDateTime.now());
+
+        Comment savedComment = commentRepository.save(comment);
+
+        log.info("add Comment: a comment with an id {} by user with an id {} to item with an id {} has been added. " +
+                "Comment : {}.", savedComment.getId(), userId, itemId, savedComment);
+        return savedComment;
     }
 
     private void checkUserExistence(Long id) {

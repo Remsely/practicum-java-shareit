@@ -4,13 +4,16 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingInsideItemDto;
 
+import java.util.List;
+
 @Data
 @Builder
-public class ItemForOwnerDto {
+public class ItemGettingDto {
     private long id;
     private String name;
     private String description;
     private Boolean available;
     private BookingInsideItemDto lastBooking;
     private BookingInsideItemDto nextBooking;
+    private List<CommentDto> comments;
 }
