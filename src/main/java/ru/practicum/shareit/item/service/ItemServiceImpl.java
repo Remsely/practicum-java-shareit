@@ -73,15 +73,51 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public Item getItem(long id) {
+    public ItemForOwnerDto getItem(long id, long userId, ItemMapper itemMapper) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("User repository")
+                                .error("User with id " + userId + " does not exist!")
+                                .build()
+                ));
+
         Item item = itemRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 ErrorResponse.builder()
                         .reason("Item repository")
                         .error("Item with id " + id + " does not exist!")
                         .build()
         ));
-        log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), item);
-        return item;
+
+        if (item.getOwner().getId() != userId) {
+            ItemForOwnerDto dto = itemMapper.toDto(item, null, null);
+            log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
+            return dto;
+        }
+
+        List<Booking> bookings = bookingRepository.findBookingsByItem(item);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Booking next = bookings.stream()
+                .filter(b -> b.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart))
+                .orElse(null);
+
+        Booking last;
+        if (next == null) {
+            last = !bookings.isEmpty()
+                    ? bookings.get(bookings.size() - 1)
+                    : null;
+        } else {
+            last = bookings.stream()
+                    .filter(b -> b.getEnd().isBefore(next.getStart()))
+                    .max(Comparator.comparing(Booking::getEnd))
+                    .orElse(null);
+        }
+        ItemForOwnerDto dto = itemMapper.toDto(item, next, last);
+        log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
+        return dto;
     }
 
     @Transactional(readOnly = true)
