@@ -137,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
                         booker, LocalDateTime.now(), LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findBookingsByBookerAndEndAfterOrderByStartDesc(
+                bookings = bookingRepository.findBookingsByBookerAndEndBeforeOrderByStartDesc(
                         booker, LocalDateTime.now());
                 break;
             case FUTURE:
