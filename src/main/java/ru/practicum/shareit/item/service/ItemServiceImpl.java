@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
@@ -95,7 +96,7 @@ public class ItemServiceImpl implements ItemService {
             return dto;
         }
 
-        List<Booking> bookings = bookingRepository.findBookingsByItem(item);
+        List<Booking> bookings = bookingRepository.findBookingsByItemAndStatus(item, BookingStatus.APPROVED);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -132,7 +133,8 @@ public class ItemServiceImpl implements ItemService {
                 ));
 
         List<Item> items = itemRepository.findByOwner(owner);
-        List<Booking> bookings = bookingRepository.findBookingsByItemInOrderByItem(items);
+        List<Booking> bookings = bookingRepository.findBookingsByItemInAndStatusOrderByItem(
+                items, BookingStatus.APPROVED);
 
         Map<Item, List<Booking>> bookingsByItem = bookings.stream().collect(Collectors.groupingBy(Booking::getItem));
 
