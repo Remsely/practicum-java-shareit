@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -95,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
                                 .reason("Booking repository")
                                 .message("Booking with id " + bookingId + " does not exist!").build()
                 ));
-        if (booking.getItem().getOwner().getId() != userId) {
+        if (booking.getItem().getOwner().getId() != userId && booking.getBooker().getId() != userId) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .message("The user with id " + userId + " does not have access to this booking!")
@@ -121,16 +120,16 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findBookingsByBookerOrderByStartDesc(booker);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndEndAfterAndStatusOrderByStartDesc(
-                        booker, LocalDateTime.now(), LocalDateTime.now(), BookingStatus.APPROVED);
+                bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
+                        booker, LocalDateTime.now(), LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findBookingsByBookerAndEndAfterAndStatusOrderByStartDesc(
-                        booker, LocalDateTime.now(), BookingStatus.APPROVED);
+                bookings = bookingRepository.findBookingsByBookerAndEndAfterOrderByStartDesc(
+                        booker, LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndStatusOrderByStartDesc(
-                        booker, LocalDateTime.now(), BookingStatus.APPROVED);
+                bookings = bookingRepository.findBookingsByBookerAndStartAfterOrderByStartDesc(
+                        booker, LocalDateTime.now());
                 break;
             case WAITING:
                 bookings = bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
@@ -143,6 +142,8 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new RuntimeException("Unsupported booking state" + state);
         }
+        log.info("get Bookings: a bookings with an owner with id {} have been received. Bookings : {}.",
+                userId, bookings);
         return bookings;
     }
 
@@ -162,28 +163,25 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findBookingsByItemOwner(owner);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByItemOwnerAndStatus(
-                        owner, LocalDateTime.now(), BookingStatus.APPROVED);
+                bookings = bookingRepository.findCurrentBookingsByItemOwner(owner, LocalDateTime.now());
                 break;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByItemOwnerAndStatus(
-                        owner, LocalDateTime.now(), BookingStatus.APPROVED);
+                bookings = bookingRepository.findPastBookingsByItemOwner(owner, LocalDateTime.now());
                 break;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByItemOwnerAndStatus(
-                        owner, LocalDateTime.now(), BookingStatus.APPROVED);
+                bookings = bookingRepository.findFutureBookingsByItemOwner(owner, LocalDateTime.now());
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(
-                        owner, BookingStatus.WAITING);
+                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(owner, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(
-                        owner, BookingStatus.REJECTED);
+                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(owner, BookingStatus.REJECTED);
                 break;
             default:
                 throw new RuntimeException("Unsupported booking state" + state);
         }
+        log.info("get Bookings: a bookings for the user with id {} items have been received. Bookings : {}.",
+                userId, bookings);
         return bookings;
     }
 }
