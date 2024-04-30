@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -16,10 +17,10 @@ public class BookingDto {
     private Long id;
 
     @FutureOrPresent
-    private Date start;
+    private LocalDateTime start;
 
     @Future
-    private Date end;
+    private LocalDateTime end;
 
     private BookingStatus status;
 

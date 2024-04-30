@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -16,14 +17,14 @@ public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
 
     @EntityGraph(attributePaths = {"booker"})
     List<Booking> findBookingsByBookerAndStartBeforeAndEndAfterAndStatusOrderByStartDesc(
-            User booker, Date start, Date end, BookingStatus status);
+            User booker, LocalDateTime start, LocalDateTime end, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker"})
-    List<Booking> findBookingsByBookerAndEndAfterAndStatusOrderByStartDesc(User booker, Date end, BookingStatus status);
+    List<Booking> findBookingsByBookerAndEndAfterAndStatusOrderByStartDesc(User booker, LocalDateTime end, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker"})
     List<Booking> findBookingsByBookerAndStartBeforeAndStatusOrderByStartDesc(
-            User booker, Date start, BookingStatus status);
+            User booker, LocalDateTime start, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker"})
     List<Booking> findBookingsByBookerAndStatusOrderByStartDesc(User booker, BookingStatus status);
@@ -38,19 +39,19 @@ public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.start <= :now and b.end >= :now and b.status = :status " +
             "order by b.start desc")
-    List<Booking> findCurrentBookingsByItemOwnerAndStatus(User owner, Date now, BookingStatus status);
+    List<Booking> findCurrentBookingsByItemOwnerAndStatus(User owner, LocalDateTime now, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker"})
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.end < :now and b.status = :status " +
             "order by b.start desc")
-    List<Booking> findPastBookingsByItemOwnerAndStatus(User owner, Date now, BookingStatus status);
+    List<Booking> findPastBookingsByItemOwnerAndStatus(User owner, LocalDateTime now, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker"})
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.start > :now and b.status = :status " +
             "order by b.start desc")
-    List<Booking> findFutureBookingsByItemOwnerAndStatus(User owner, Date now, BookingStatus status);
+    List<Booking> findFutureBookingsByItemOwnerAndStatus(User owner, LocalDateTime now, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker"})
     @Query(" select b from Booking b " +

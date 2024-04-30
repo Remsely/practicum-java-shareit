@@ -12,6 +12,7 @@ import ru.practicum.shareit.exception.DatesValidationException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -63,13 +64,13 @@ public class BookingController {
         return bookingMapper.toDtoList(bookingService.getUserItemsBookings(userId, state));
     }
 
-    private void validateDates(Date from, Date to) {
-        if (to.before(from)) {
+    private void validateDates(LocalDateTime from, LocalDateTime to) {
+        if (to.isBefore(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
                     .message("The end date can't be earlier than the start date.").build());
         }
-        if (to.compareTo(from) == 0) {
+        if (to.isEqual(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
                     .message("The end date can't be equal to the start date.").build());

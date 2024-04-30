@@ -9,12 +9,14 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +48,14 @@ public class BookingServiceImpl implements BookingService {
                                 .build()
                 ))
         );
+        if (!booking.getItem().getAvailable()) {
+            throw new UnavailableItemException(
+                    ErrorResponse.builder()
+                            .reason("Unavailable item")
+                            .message("The item with id " + itemId + " is not available for booking")
+                            .build()
+            );
+        }
         booking.setStatus(BookingStatus.WAITING);
         Booking savedBooking = bookingRepository.save(booking);
         log.info("add Booking: a booking with an id {} and booker id {} has been added. Booking : {}.",
@@ -112,15 +122,15 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case CURRENT:
                 bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndEndAfterAndStatusOrderByStartDesc(
-                        booker, new Date(), new Date(), BookingStatus.APPROVED);
+                        booker, LocalDateTime.now(), LocalDateTime.now(), BookingStatus.APPROVED);
                 break;
             case PAST:
                 bookings = bookingRepository.findBookingsByBookerAndEndAfterAndStatusOrderByStartDesc(
-                        booker, new Date(), BookingStatus.APPROVED);
+                        booker, LocalDateTime.now(), BookingStatus.APPROVED);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndStatusOrderByStartDesc(
-                        booker, new Date(), BookingStatus.APPROVED);
+                        booker, LocalDateTime.now(), BookingStatus.APPROVED);
                 break;
             case WAITING:
                 bookings = bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
@@ -153,15 +163,15 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case CURRENT:
                 bookings = bookingRepository.findCurrentBookingsByItemOwnerAndStatus(
-                        owner, new Date(), BookingStatus.APPROVED);
+                        owner, LocalDateTime.now(), BookingStatus.APPROVED);
                 break;
             case PAST:
                 bookings = bookingRepository.findPastBookingsByItemOwnerAndStatus(
-                        owner, new Date(), BookingStatus.APPROVED);
+                        owner, LocalDateTime.now(), BookingStatus.APPROVED);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findFutureBookingsByItemOwnerAndStatus(
-                        owner, new Date(), BookingStatus.APPROVED);
+                        owner, LocalDateTime.now(), BookingStatus.APPROVED);
                 break;
             case WAITING:
                 bookings = bookingRepository.findBookingsByItemOwnerAndStatus(

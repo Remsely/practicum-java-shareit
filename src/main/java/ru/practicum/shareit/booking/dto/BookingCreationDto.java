@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -15,9 +16,9 @@ public class BookingCreationDto {
 
     @NotNull
     @FutureOrPresent
-    private Date start;
+    private LocalDateTime start;
 
     @NotNull
     @Future
-    private Date end;
+    private LocalDateTime end;
 }

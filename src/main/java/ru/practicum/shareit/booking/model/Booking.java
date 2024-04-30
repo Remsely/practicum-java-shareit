@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,10 +23,10 @@ public class Booking {
     private Long id;
 
     @Column(name = "start_time", nullable = false)
-    private Date start;
+    private LocalDateTime start;
 
     @Column(name = "end_time", nullable = false)
-    private Date end;
+    private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
