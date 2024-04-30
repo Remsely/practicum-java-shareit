@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -56,4 +57,7 @@ public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
             "where b.item.owner = :owner and b.status = :status " +
             "order by b.start desc")
     List<Booking> findBookingsByItemOwnerAndStatus(User owner, BookingStatus status);
+
+    @EntityGraph(attributePaths = {"booker", "item"})
+    List<Booking> findBookingsByItemInOrderByItem(List<Item> items);
 }

@@ -4,14 +4,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingJpaRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
+import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -19,6 +28,7 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final ItemJpaRepository itemRepository;
     private final UserJpaRepository userRepository;
+    private final BookingJpaRepository bookingRepository;
 
     @Transactional
     @Override
@@ -76,17 +86,49 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Item> getUserItems(long userId) {
-        List<Item> items = itemRepository.findByOwner(userRepository.findById(userId)
+    public List<ItemForOwnerDto> getUserItems(long userId, ItemMapper itemMapper) {
+        User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
                                 .reason("User repository")
                                 .error("User with id " + userId + " does not exist!")
                                 .build()
-                )));
+                ));
+
+        List<Item> items = itemRepository.findByOwner(owner);
+        List<Booking> bookings = bookingRepository.findBookingsByItemInOrderByItem(items);
+
+        Map<Item, List<Booking>> bookingsByItem = bookings.stream().collect(Collectors.groupingBy(Booking::getItem));
+
+        List<ItemForOwnerDto> itemsWithLastAndNextBookings = items.stream()
+                .map(i -> {
+                    List<Booking> bookingsForItem = bookingsByItem.getOrDefault(i, List.of());
+
+                    LocalDateTime now = LocalDateTime.now();
+
+                    Booking next = bookingsForItem.stream()
+                            .filter(b -> b.getStart().isAfter(now))
+                            .min(Comparator.comparing(Booking::getStart))
+                            .orElse(null);
+
+                    Booking last;
+                    if (next == null) {
+                        last = !bookingsForItem.isEmpty()
+                                ? bookingsForItem.get(bookingsForItem.size() - 1)
+                                : null;
+                    } else {
+                        last = bookingsForItem.stream()
+                                .filter(b -> b.getEnd().isBefore(next.getStart()))
+                                .max(Comparator.comparing(Booking::getEnd))
+                                .orElse(null);
+                    }
+                    return itemMapper.toDto(i, next, last);
+                })
+                .collect(Collectors.toList());
+
         log.info("get user's Items: the list of items of the user with id {} has been received. List : {}.",
-                userId, items);
-        return items;
+                userId, itemsWithLastAndNextBookings);
+        return itemsWithLastAndNextBookings;
     }
 
     @Transactional(readOnly = true)

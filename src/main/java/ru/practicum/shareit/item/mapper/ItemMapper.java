@@ -1,8 +1,11 @@
 package ru.practicum.shareit.item.mapper;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.dto.BookingInsideItemDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemForOwnerDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -16,6 +19,17 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .build();
+    }
+
+    public ItemForOwnerDto toDto(Item item, Booking next, Booking last) {
+        return ItemForOwnerDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .nextBooking(next == null ? null : buildBookerShortDto(next))
+                .lastBooking(last == null ? null : buildBookerShortDto(last))
                 .build();
     }
 
@@ -41,5 +55,14 @@ public class ItemMapper {
         return items.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+    }
+
+    private BookingInsideItemDto buildBookerShortDto(Booking booking) {
+        return BookingInsideItemDto.builder()
+                .id(booking.getId())
+                .end(booking.getEnd())
+                .start(booking.getStart())
+                .bookerId(booking.getBooker().getId())
+                .build();
     }
 }

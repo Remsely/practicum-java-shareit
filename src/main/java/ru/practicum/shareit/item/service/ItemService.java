@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item.service;
 
+import ru.practicum.shareit.item.dto.ItemForOwnerDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -11,7 +13,7 @@ public interface ItemService {
 
     Item getItem(long id);
 
-    List<Item> getUserItems(long userId);
+    List<ItemForOwnerDto> getUserItems(long userId, ItemMapper itemMapper);
 
     List<Item> searchItems(String query);
 }
