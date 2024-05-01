@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @Builder
-public class ItemCreateDto {
+public class ItemCreationDto {
     private long id;
 
     @NotBlank

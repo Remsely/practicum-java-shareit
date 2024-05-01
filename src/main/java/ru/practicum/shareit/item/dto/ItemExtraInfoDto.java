@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class ItemGettingDto {
+public class ItemExtraInfoDto {
     private long id;
     private String name;
     private String description;

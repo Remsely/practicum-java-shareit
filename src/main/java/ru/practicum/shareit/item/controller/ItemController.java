@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
+import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemGettingDto;
+import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -26,7 +26,7 @@ public class ItemController {
     private final CommentMapper commentMapper;
 
     @PostMapping
-    public ItemDto addItem(@Valid @RequestBody ItemCreateDto itemDto,
+    public ItemDto addItem(@Valid @RequestBody ItemCreationDto itemDto,
                            @RequestHeader("X-Sharer-User-id") long userId) {
         log.info("Post /items (X-Sharer-User-id = {}). Request body : {}", userId, itemDto);
         Item item = itemMapper.toEntity(itemDto);
@@ -43,13 +43,13 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemGettingDto getItem(@PathVariable long id, @RequestHeader("X-Sharer-User-id") Long userId) {
+    public ItemExtraInfoDto getItem(@PathVariable long id, @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items/{}", id);
         return itemService.getItem(id, userId, itemMapper);
     }
 
     @GetMapping
-    public List<ItemGettingDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
+    public List<ItemExtraInfoDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items (X-Sharer-User-id = {})", userId);
         return itemService.getUserItems(userId, itemMapper);
     }

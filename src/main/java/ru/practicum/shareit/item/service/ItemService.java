@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.service;
 
-import ru.practicum.shareit.item.dto.ItemGettingDto;
-import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -13,9 +12,9 @@ public interface ItemService {
 
     Item updateItem(Item item, long itemId, long userId);
 
-    ItemGettingDto getItem(long id, long userId, ItemMapper itemMapper);
+    ItemExtraInfoDto getItem(long id, long userId, ItemMapper itemMapper);
 
-    List<ItemGettingDto> getUserItems(long userId, ItemMapper itemMapper);
+    List<ItemExtraInfoDto> getUserItems(long userId, ItemMapper itemMapper);
 
     List<Item> searchItems(String query);
 
