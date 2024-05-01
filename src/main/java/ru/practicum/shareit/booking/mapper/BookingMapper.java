@@ -18,17 +18,6 @@ public class BookingMapper {
     private final UserMapper userMapper;
     private final ItemMapper itemMapper;
 
-    public Booking toEntity(final BookingDto dto) {
-        return Booking.builder()
-                .id(dto.getId())
-                .start(dto.getStart())
-                .end(dto.getEnd())
-                .booker(userMapper.toEntity(dto.getBooker()))
-                .item(itemMapper.toEntity(dto.getItem()))
-                .status(dto.getStatus())
-                .build();
-    }
-
     public Booking toEntity(final BookingCreationDto dto) {
         return Booking.builder()
                 .start(dto.getStart())

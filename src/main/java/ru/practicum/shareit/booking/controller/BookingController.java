@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.DatesValidationException;
-import ru.practicum.shareit.exception.IllegalStateException;
+import ru.practicum.shareit.exception.UnsupportedStateException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 
 import javax.validation.Valid;
@@ -50,7 +50,8 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getCurrentUserBookings(
             @RequestHeader("X-Sharer-User-id") long userId,
-            @RequestParam(required = false, defaultValue = "ALL") String state) {
+            @RequestParam(required = false, defaultValue = "ALL") String state
+    ) {
         log.info("GET /bookings?state={} (X-Sharer-User-id = {})", state, userId);
         return bookingMapper.toDtoList(bookingService.getUserBookings(userId, castStateWithExceptionMapping(state)));
     }
@@ -69,12 +70,12 @@ public class BookingController {
         if (to.isBefore(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .error("The end date can't be earlier than the start date.").build());
+                    .error("The end date can't be earlier than the start date!").build());
         }
         if (to.isEqual(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .error("The end date can't be equal to the start date.").build());
+                    .error("The end date can't be equal to the start date!").build());
         }
     }
 
@@ -82,9 +83,10 @@ public class BookingController {
         try {
             return BookingState.valueOf(state);
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException(ErrorResponse.builder()
+            throw new UnsupportedStateException(ErrorResponse.builder()
                     .reason("State parameter")
-                    .error("Unknown state: " + state).build());
+                    .error("Unknown state: " + state).build()
+            );
         }
     }
 }

@@ -12,7 +12,6 @@ import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.dto.ItemGettingDto;
-import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -79,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public ItemGettingDto getItem(long id, long userId, ItemMapper itemMapper, CommentMapper commentMapper) {
+    public ItemGettingDto getItem(long id, long userId, ItemMapper itemMapper) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
@@ -98,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments = commentRepository.findByItem(item);
 
         if (item.getOwner().getId() != userId) {
-            ItemGettingDto dto = itemMapper.toDto(item, null, null, commentMapper.toDtoList(comments));
+            ItemGettingDto dto = itemMapper.toDto(item, null, null, comments);
             log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
             return dto;
         }
@@ -123,14 +122,14 @@ public class ItemServiceImpl implements ItemService {
                     .max(Comparator.comparing(Booking::getEnd))
                     .orElse(null);
         }
-        ItemGettingDto dto = itemMapper.toDto(item, next, last, commentMapper.toDtoList(comments));
+        ItemGettingDto dto = itemMapper.toDto(item, next, last, comments);
         log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
         return dto;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemGettingDto> getUserItems(long userId, ItemMapper itemMapper, CommentMapper commentMapper) {
+    public List<ItemGettingDto> getUserItems(long userId, ItemMapper itemMapper) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         ErrorResponse.builder()
@@ -170,9 +169,7 @@ public class ItemServiceImpl implements ItemService {
                                 .max(Comparator.comparing(Booking::getEnd))
                                 .orElse(null);
                     }
-                    return itemMapper.toDto(i, next, last, commentMapper.toDtoList(
-                            commentsByItem.getOrDefault(i, List.of())
-                    ));
+                    return itemMapper.toDto(i, next, last, commentsByItem.getOrDefault(i, List.of()));
                 })
                 .collect(Collectors.toList());
 

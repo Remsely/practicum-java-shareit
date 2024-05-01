@@ -13,9 +13,9 @@ public interface ItemService {
 
     Item updateItem(Item item, long itemId, long userId);
 
-    ItemGettingDto getItem(long id, long userId, ItemMapper itemMapper, CommentMapper commentMapper);
+    ItemGettingDto getItem(long id, long userId, ItemMapper itemMapper);
 
-    List<ItemGettingDto> getUserItems(long userId, ItemMapper itemMapper, CommentMapper commentMapper);
+    List<ItemGettingDto> getUserItems(long userId, ItemMapper itemMapper);
 
     List<Item> searchItems(String query);
 

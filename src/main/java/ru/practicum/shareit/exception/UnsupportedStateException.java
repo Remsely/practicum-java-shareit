@@ -6,6 +6,6 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Getter
 @RequiredArgsConstructor
-public class IllegalStateException extends IllegalArgumentException {
+public class UnsupportedStateException extends IllegalArgumentException {
     private final ErrorResponse errorResponse;
 }

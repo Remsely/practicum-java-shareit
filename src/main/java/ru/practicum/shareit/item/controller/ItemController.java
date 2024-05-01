@@ -45,13 +45,13 @@ public class ItemController {
     @GetMapping("/{id}")
     public ItemGettingDto getItem(@PathVariable long id, @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items/{}", id);
-        return itemService.getItem(id, userId, itemMapper, commentMapper);
+        return itemService.getItem(id, userId, itemMapper);
     }
 
     @GetMapping
     public List<ItemGettingDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("GET /items (X-Sharer-User-id = {})", userId);
-        return itemService.getUserItems(userId, itemMapper, commentMapper);
+        return itemService.getUserItems(userId, itemMapper);
     }
 
     @GetMapping("/search")

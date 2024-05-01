@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.*;
-import ru.practicum.shareit.exception.IllegalStateException;
+import ru.practicum.shareit.exception.UnsupportedStateException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Slf4j
@@ -54,7 +54,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleIllegalState(IllegalStateException e) {
+    public ErrorResponse handleIllegalState(UnsupportedStateException e) {
         ErrorResponse errorResponse = e.getErrorResponse();
         log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
         return errorResponse;
