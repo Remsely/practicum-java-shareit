@@ -8,9 +8,9 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.List;
 
 public interface CommentJpaRepository extends JpaRepository<Comment, Long> {
-    @EntityGraph(attributePaths ={"item", "author"})
+    @EntityGraph(attributePaths = {"item", "author"})
     List<Comment> findByItemIn(List<Item> items);
 
-    @EntityGraph(attributePaths ={"item", "author"})
+    @EntityGraph(attributePaths = {"item", "author"})
     List<Comment> findByItem(Item item);
 }
