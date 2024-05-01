@@ -13,6 +13,7 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
@@ -31,37 +32,14 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public Booking addBooking(Booking booking, long userId) {
-        booking.setBooker(userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorResponse.builder()
-                                .reason("User repository")
-                                .error("User with id " + userId + " does not exist!")
-                                .build()
-                ))
-        );
+        booking.setBooker(findUser(userId));
+
         long itemId = booking.getItem().getId();
-        booking.setItem(itemRepository.findById(itemId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorResponse.builder()
-                                .reason("Item repository")
-                                .error("Item with id " + itemId + " does not exist!")
-                                .build()
-                ))
-        );
-        if (booking.getItem().getOwner().getId() == userId) {
-            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
-                    .reason("Forbidden for this id")
-                    .error("The user with id " + userId + " does not have access to this booking!")
-                    .build());
-        }
-        if (!booking.getItem().getAvailable()) {
-            throw new UnavailableItemException(
-                    ErrorResponse.builder()
-                            .reason("Unavailable item")
-                            .error("The item with id " + itemId + " is not available for booking")
-                            .build()
-            );
-        }
+        booking.setItem(findItem(itemId));
+
+        checkBookerIsNotOwner(booking, userId);
+        checkBookingItemIsAvailable(booking);
+
         booking.setStatus(BookingStatus.WAITING);
         Booking savedBooking = bookingRepository.save(booking);
         log.info("add Booking: a booking with an id {} and booker id {} has been added. Booking : {}.",
@@ -72,27 +50,14 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public Booking approveBooking(long id, long userId, boolean approved) {
-        Booking bookingToUpdate = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorResponse.builder()
-                                .reason("Booking repository")
-                                .error("Booking with id " + id + " does not exist!").build()
-                ));
-        if (bookingToUpdate.getItem().getOwner().getId() != userId) {
-            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
-                    .reason("Forbidden for this id")
-                    .error("The user with id " + userId + " does not have access to this booking!")
-                    .build());
-        }
-        if (bookingToUpdate.getStatus() != BookingStatus.WAITING) {
-            throw new AlreadyApprovedException(ErrorResponse.builder()
-                    .reason("Booking status")
-                    .error("The booking request has already been approved!")
-                    .build());
-        }
-        bookingToUpdate.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
-        Booking savedBooking = bookingRepository.save(bookingToUpdate);
+        Booking bookingToUpdate = findBooking(id);
 
+        checkOwner(bookingToUpdate, userId);
+        checkBookingIsWaiting(bookingToUpdate);
+
+        bookingToUpdate.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
+
+        Booking savedBooking = bookingRepository.save(bookingToUpdate);
         log.info("approve Booking: a booking with an id {} and booker id {} has been {}. Booking : {}.",
                 id, userId, approved ? BookingStatus.APPROVED : BookingStatus.REJECTED, savedBooking);
         return savedBooking;
@@ -101,18 +66,8 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public Booking getBookingById(long bookingId, long userId) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorResponse.builder()
-                                .reason("Booking repository")
-                                .error("Booking with id " + bookingId + " does not exist!").build()
-                ));
-        if (booking.getItem().getOwner().getId() != userId && booking.getBooker().getId() != userId) {
-            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
-                    .reason("Forbidden for this id")
-                    .error("The user with id " + userId + " does not have access to this booking!")
-                    .build());
-        }
+        Booking booking = findBooking(bookingId);
+        checkUserAccessRights(booking, userId);
         log.info("get Booking: a item booking an id {} has been received. Booking : {}.", booking.getId(), booking);
         return booking;
     }
@@ -120,13 +75,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public List<Booking> getUserBookings(long userId, BookingState state) {
-        User booker = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorResponse.builder()
-                                .reason("User repository")
-                                .error("User with id " + userId + " does not exist!")
-                                .build()
-                ));
+        User booker = findUser(userId);
         List<Booking> bookings;
         switch (state) {
             case ALL:
@@ -163,13 +112,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public List<Booking> getUserItemsBookings(long userId, BookingState state) {
-        User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorResponse.builder()
-                                .reason("User repository")
-                                .error("User with id " + userId + " does not exist!")
-                                .build()
-                ));
+        User owner = findUser(userId);
         List<Booking> bookings;
         switch (state) {
             case ALL:
@@ -196,5 +139,94 @@ public class BookingServiceImpl implements BookingService {
         log.info("get Bookings: a bookings for the user with id {} items have been received. Bookings : {}.",
                 userId, bookings);
         return bookings;
+    }
+
+    private User findUser(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("User repository")
+                                .error("User with id " + userId + " does not exist!")
+                                .build()
+                ));
+    }
+
+    private Booking findBooking(long bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("Booking repository")
+                                .error("Booking with id " + bookingId + " does not exist!").build()
+                ));
+    }
+
+    private Item findItem(long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("Item repository")
+                                .error("Item with id " + itemId + " does not exist!")
+                                .build()
+                ));
+    }
+
+    private boolean userIsOwner(Booking booking, long userId) {
+        return booking.getItem().getOwner().getId() == userId;
+    }
+
+    private boolean userIsBooker(Booking booking, long userId) {
+        return booking.getBooker().getId() == userId;
+    }
+
+    private void checkBookerIsNotOwner(Booking booking, long userId) {
+        if (userIsOwner(booking, userId)) {
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
+                    .reason("Forbidden for this id")
+                    .error("The user with id " + userId + " does not have access to this booking!")
+                    .build()
+            );
+        }
+    }
+
+    private void checkOwner(Booking booking, long userId) {
+        if (!userIsOwner(booking, userId)) {
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
+                    .reason("Forbidden for this id")
+                    .error("The user with id " + userId + " does not have access to this booking!")
+                    .build()
+            );
+        }
+    }
+
+    private void checkBookingItemIsAvailable(Booking booking) {
+        Item item = booking.getItem();
+        if (!item.getAvailable()) {
+            throw new UnavailableItemException(
+                    ErrorResponse.builder()
+                            .reason("Unavailable item")
+                            .error("The item with id " + item.getId() + " is not available for booking!")
+                            .build()
+            );
+        }
+    }
+
+    private void checkBookingIsWaiting(Booking booking) {
+        if (booking.getStatus() != BookingStatus.WAITING) {
+            throw new AlreadyApprovedException(ErrorResponse.builder()
+                    .reason("Booking status")
+                    .error("The booking request has already been approved!")
+                    .build()
+            );
+        }
+    }
+
+    private void checkUserAccessRights(Booking booking, long userId) {
+        if (!userIsOwner(booking, userId) && !userIsBooker(booking, userId)) {
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
+                    .reason("Forbidden for this id")
+                    .error("The user with id " + userId + " does not have access to this booking!")
+                    .build()
+            );
+        }
     }
 }
