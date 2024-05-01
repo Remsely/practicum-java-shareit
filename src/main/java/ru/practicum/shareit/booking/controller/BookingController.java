@@ -26,7 +26,7 @@ public class BookingController {
 
     @PostMapping
     public BookingDto addBooking(@Valid @RequestBody BookingCreationDto bookingDto,
-                                 @RequestHeader("X-Sharer-User-id") long userId) {
+                                 @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("POST /bookings (X-Sharer-User-id = {}). Request body : {}", userId, bookingDto);
         validateDates(bookingDto.getStart(), bookingDto.getEnd());
         Booking booking = bookingMapper.toEntity(bookingDto);
@@ -35,21 +35,21 @@ public class BookingController {
 
     @PatchMapping("/{id}")
     public BookingDto approveBooking(@PathVariable long id,
-                                     @RequestHeader("X-Sharer-User-id") long userId,
+                                     @RequestHeader("X-Sharer-User-id") Long userId,
                                      @RequestParam Boolean approved) {
         log.info("PATCH /bookings/{}?approved={} (X-Sharer-User-id = {})", id, approved, userId);
         return bookingMapper.toDto(bookingService.approveBooking(id, userId, approved));
     }
 
     @GetMapping("/{id}")
-    public BookingDto getBooking(@RequestHeader("X-Sharer-User-id") long userId, @PathVariable long id) {
+    public BookingDto getBooking(@RequestHeader("X-Sharer-User-id") Long userId, @PathVariable long id) {
         log.info("GET /bookings/{} (X-Sharer-User-id = {})", id, userId);
         return bookingMapper.toDto(bookingService.getBookingById(id, userId));
     }
 
     @GetMapping
     public List<BookingDto> getCurrentUserBookings(
-            @RequestHeader("X-Sharer-User-id") long userId,
+            @RequestHeader("X-Sharer-User-id") Long userId,
             @RequestParam(required = false, defaultValue = "ALL") String state
     ) {
         log.info("GET /bookings?state={} (X-Sharer-User-id = {})", state, userId);
@@ -58,7 +58,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDto> getCurrentUserItemsBookings(
-            @RequestHeader("X-Sharer-User-id") long userId,
+            @RequestHeader("X-Sharer-User-id") Long userId,
             @RequestParam(required = false, defaultValue = "ALL") String state
     ) {
         log.info("GET /bookings/owner?state={} (X-Sharer-User-id = {})", state, userId);

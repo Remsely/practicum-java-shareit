@@ -27,7 +27,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@Valid @RequestBody ItemCreationDto itemDto,
-                           @RequestHeader("X-Sharer-User-id") long userId) {
+                           @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("Post /items (X-Sharer-User-id = {}). Request body : {}", userId, itemDto);
         Item item = itemMapper.toEntity(itemDto);
         return itemMapper.toDto(itemService.addItem(item, userId));
@@ -36,7 +36,7 @@ public class ItemController {
     @PatchMapping("/{id}")
     public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto,
                               @PathVariable long id,
-                              @RequestHeader("X-Sharer-User-id") long userId) {
+                              @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("Patch /items/{} (X-Sharer-User-id = {}). Request body : {}", id, userId, itemDto);
         Item item = itemMapper.toEntity(itemDto);
         return itemMapper.toDto(itemService.updateItem(item, id, userId));
