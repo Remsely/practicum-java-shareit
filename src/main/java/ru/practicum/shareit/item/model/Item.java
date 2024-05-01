@@ -25,7 +25,7 @@ public class Item {
 
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
