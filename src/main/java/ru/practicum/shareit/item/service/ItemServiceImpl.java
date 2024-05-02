@@ -35,7 +35,6 @@ public class ItemServiceImpl implements ItemService {
     private final BookingJpaRepository bookingRepository;
     private final CommentJpaRepository commentRepository;
 
-    @Transactional
     @Override
     public Item addItem(Item item, long userId) {
         item.setOwner(findUser(userId));
@@ -45,7 +44,6 @@ public class ItemServiceImpl implements ItemService {
         return addedItem;
     }
 
-    @Transactional
     @Override
     public Item updateItem(Item item, long itemId, long userId) {
         Item itemToUpdate = findItem(itemId);
@@ -108,7 +106,6 @@ public class ItemServiceImpl implements ItemService {
         return extraInfoItems;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Item> searchItems(String query) {
         List<Item> items = itemRepository.search(query);

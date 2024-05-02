@@ -47,7 +47,6 @@ public class BookingServiceImpl implements BookingService {
         return savedBooking;
     }
 
-    @Transactional
     @Override
     public Booking approveBooking(long id, long userId, boolean approved) {
         Booking bookingToUpdate = findBooking(id);
@@ -63,7 +62,6 @@ public class BookingServiceImpl implements BookingService {
         return savedBooking;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Booking getBookingById(long bookingId, long userId) {
         Booking booking = findBooking(bookingId);
@@ -72,7 +70,6 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Booking> getUserBookings(long userId, BookingState state) {
         User booker = findUser(userId);
@@ -109,7 +106,6 @@ public class BookingServiceImpl implements BookingService {
         return bookings;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<Booking> getUserItemsBookings(long userId, BookingState state) {
         User owner = findUser(userId);

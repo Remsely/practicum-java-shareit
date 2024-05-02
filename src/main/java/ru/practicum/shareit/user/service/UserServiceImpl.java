@@ -2,11 +2,9 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserAlreadyExistException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
@@ -20,77 +18,20 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserJpaRepository userRepository;
 
-    @Transactional
     @Override
     public User addUser(User user) {
-        User addedUser;
-        try {
-            addedUser = userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistException(ErrorResponse.builder()
-                    .reason("User repository")
-                    .error("User with email " + user.getEmail() + " already exist!")
-                    .build()
-            );
-        }
+        User addedUser = userRepository.save(user);
         log.info("add User: a user with an id {} has been added. User : {}.", addedUser.getId(), addedUser);
         return addedUser;
     }
 
-    @Transactional
     @Override
     public User updateUser(User user, long id) {
         User userToUpdate = findUser(id);
         updateNonNullProperties(userToUpdate, user);
-
-        /*
-        Здесь исключение почему-то не ловится. Я прочитал, что это исключение не выбрасывается внутри транзакции, и
-        его можно поймать за ее пределами. Но в таком случае я не могу понять, почему оно ловится в addUser...
-
-        Исключение ловится, если сделать так:
-
-        @Override
-        public User updateUser(User user, long id) {
-            User userToUpdate = findUser(id);
-            updateNonNullProperties(userToUpdate, user);
-
-            User updatedUser;
-            try {
-                updatedUser = updateUser(userToUpdate);
-                log.info("update User: a user with an id {} has been updated. User : {}.", updatedUser.getId(), updatedUser);
-                return updatedUser;
-            } catch (DataIntegrityViolationException e) {
-                throw new UserAlreadyExistException(ErrorResponse.builder()
-                        .reason("User repository")
-                        .error("User with email " + user.getEmail() + " already exist!")
-                        .build()
-                );
-            }
-        }
-
-        @Transactional
-        public User updateUser(User userToUpdate) {
-            return userRepository.save(userToUpdate);
-        }
-
-        Но мне не нравится такой метод. Даже IDEA ругается.
-        Есть еще вариант ловить исключение в контроллере, но это как будто тоже не очень хорошо.
-        Стоит ли пытаться ловить это исключение уже в ErrorHandler и писать там логику по проверке деталей ошибки
-        (чтобы знать, что ее вызвал именно email), чтобы делать структурированный вывод?
-        */
-
-        User updatedUser;
-        try {
-            updatedUser = userRepository.save(userToUpdate);
-            log.info("update User: a user with an id {} has been updated. User : {}.", updatedUser.getId(), updatedUser);
-            return updatedUser;
-        } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistException(ErrorResponse.builder()
-                    .reason("User repository")
-                    .error("User with email " + user.getEmail() + " already exist!")
-                    .build()
-            );
-        }
+        User updatedUser = userRepository.save(userToUpdate);
+        log.info("update User: a user with an id {} has been updated. User : {}.", updatedUser.getId(), updatedUser);
+        return updatedUser;
     }
 
     @Transactional
@@ -101,7 +42,6 @@ public class UserServiceImpl implements UserService {
         log.info("delete User: a user with an id {} has been deleted.", id);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public User getUser(long id) {
         User user = findUser(id);
@@ -109,7 +49,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<User> getUsers() {
         List<User> users = userRepository.findAll();
