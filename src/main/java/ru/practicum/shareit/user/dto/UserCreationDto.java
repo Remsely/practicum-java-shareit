@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
-public class UserCreateDto {
+public class UserCreationDto {
     private long id;
 
     @NotNull

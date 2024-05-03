@@ -6,6 +6,6 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Getter
 @RequiredArgsConstructor
-public class UserIdWithoutAccessRightsException extends RuntimeException {
+public class UserWithoutAccessRightsException extends RuntimeException {
     private final ErrorResponse errorResponse;
 }

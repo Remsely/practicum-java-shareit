@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.UserIdWithoutAccessRightsException;
+import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.model.Item;
 
@@ -32,7 +32,7 @@ public class InMemoryItemStorage implements ItemRepository {
 
         Item savedItem = items.get(id);
 
-        checkOwner(savedItem, item.getOwnerId());
+        checkOwner(savedItem, item.getOwner().getId());
 
         String name = item.getName();
         String description = item.getDescription();
@@ -43,7 +43,7 @@ public class InMemoryItemStorage implements ItemRepository {
                 .name(name == null ? savedItem.getName() : name)
                 .description(description == null ? savedItem.getDescription() : description)
                 .available(available == null ? savedItem.getAvailable() : available)
-                .ownerId(item.getOwnerId())
+                .owner(item.getOwner())
                 .build();
 
         items.put(id, updatedItem);
@@ -59,7 +59,7 @@ public class InMemoryItemStorage implements ItemRepository {
     @Override
     public List<Item> getByUserId(long user) {
         return items.values().stream()
-                .filter(i -> i.getOwnerId() == user)
+                .filter(i -> i.getOwner().getId() == user)
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +76,7 @@ public class InMemoryItemStorage implements ItemRepository {
         if (!items.containsKey(id)) {
             throw new EntityNotFoundException(ErrorResponse.builder()
                     .reason("Item repository")
-                    .message("Item with id " + id + " already exist!")
+                    .error("Item with id " + id + " already exist!")
                     .build()
             );
         }
@@ -84,14 +84,14 @@ public class InMemoryItemStorage implements ItemRepository {
 
     @Override
     public void deleteUserItems(long userId) {
-        items.entrySet().removeIf(entry -> entry.getValue().getOwnerId() == userId);
+        items.entrySet().removeIf(entry -> entry.getValue().getOwner().getId() == userId);
     }
 
     private void checkOwner(Item item, long userId) {
-        if (item.getOwnerId() != userId) {
-            throw new UserIdWithoutAccessRightsException(ErrorResponse.builder()
+        if (item.getOwner().getId() != userId) {
+            throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
-                    .message("The user with id " + userId + " does not have access to this item")
+                    .error("The user with id " + userId + " does not have access to this item")
                     .build());
         }
     }
