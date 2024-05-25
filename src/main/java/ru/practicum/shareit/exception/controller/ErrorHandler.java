@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.*;
-import ru.practicum.shareit.exception.UnsupportedStateException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Slf4j
@@ -71,6 +70,14 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleItemWasNotRented(ItemWasNotBeRentedException e) {
+        ErrorResponse errorResponse = e.getErrorResponse();
+        log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
+        return errorResponse;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalPageableArguments(IllegalPageableArgumentsException e) {
         ErrorResponse errorResponse = e.getErrorResponse();
         log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
         return errorResponse;

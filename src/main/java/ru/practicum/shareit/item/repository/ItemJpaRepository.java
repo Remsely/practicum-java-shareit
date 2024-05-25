@@ -9,10 +9,10 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
-    @EntityGraph(attributePaths = {"owner"})
-    List<Item> findByOwner(User owner);
+    @EntityGraph(attributePaths = {"owner", "request"})
+    List<Item> findByOwnerOrderById(User owner);
 
-    @EntityGraph(attributePaths = {"owner"})
+    @EntityGraph(attributePaths = {"owner", "request"})
     @Query(" select i from Item i " +
             "where i.available = true and (lower(i.name) like lower(concat('%', ?1, '%'))" +
             "    or lower(i.description) like lower(concat('%', ?1, '%')))")

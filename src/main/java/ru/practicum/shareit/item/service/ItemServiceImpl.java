@@ -17,6 +17,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentJpaRepository;
 import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserJpaRepository;
 
@@ -34,9 +36,13 @@ public class ItemServiceImpl implements ItemService {
     private final UserJpaRepository userRepository;
     private final BookingJpaRepository bookingRepository;
     private final CommentJpaRepository commentRepository;
+    private final ItemRequestRepository requestRepository;
 
     @Override
     public Item addItem(Item item, long userId) {
+        if (item.getRequest() != null) {
+            item.setRequest(findRequest(item.getRequest().getId()));
+        }
         item.setOwner(findUser(userId));
         Item addedItem = itemRepository.save(item);
         log.info("add Item: an item with an id {} and owner id {} has been added. Item : {}.",
@@ -84,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemExtraInfoDto> getUserItems(long userId, ItemMapper itemMapper) {
         User owner = findUser(userId);
 
-        List<Item> items = itemRepository.findByOwner(owner);
+        List<Item> items = itemRepository.findByOwnerOrderById(owner);
         List<Comment> comments = commentRepository.findByItemIn(items);
         List<Booking> bookings = bookingRepository.findBookingsByItemInAndStatusOrderByItem(
                 items, BookingStatus.APPROVED);
@@ -147,6 +153,16 @@ public class ItemServiceImpl implements ItemService {
                         ErrorResponse.builder()
                                 .reason("Item repository")
                                 .error("Item with id " + itemId + " does not exist!")
+                                .build()
+                ));
+    }
+
+    private ItemRequest findRequest(long requestId) {
+        return requestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("ItemRequest repository")
+                                .error("Request with id " + requestId + " does not exist!")
                                 .build()
                 ));
     }

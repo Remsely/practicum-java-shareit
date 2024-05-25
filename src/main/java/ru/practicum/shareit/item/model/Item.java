@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -30,4 +31,7 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ItemRequest request;
 }
