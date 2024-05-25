@@ -2,11 +2,10 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.exception.IllegalPageableArgumentsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -22,6 +21,7 @@ import java.util.List;
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final UserJpaRepository userRepository;
+    private final PageableUtility pageableUtility;
 
     @Override
     public ItemRequest addRequest(ItemRequest request, long userId) {
@@ -38,31 +38,17 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = findUser(userId);
         List<ItemRequest> foundRequests = requestRepository.findByUser(user);
         log.info("get user's ItemRequest: the list of item requests of the user with id {} has been received. " +
-                "List : {}.", userId, foundRequests);
+                "List (size = {}) : {}.", userId, foundRequests.size(), foundRequests);
         return foundRequests;
     }
 
     @Override
     public List<ItemRequest> getAllRequests(Integer from, Integer size, long userId) {
-        List<ItemRequest> foundRequests;
-        if (from == null || size == null) {
-            foundRequests = requestRepository.findAll();
-        } else {
-            if (from < 0 || size <= 0) {
-                throw new IllegalPageableArgumentsException(
-                        ErrorResponse.builder()
-                                .reason("ItemRequestService get all requests")
-                                .error("Arguments from: " + from + ", size: " + size + ".")
-                                .build()
-                );
-            }
-            User user = findUser(userId);
-            Pageable pageable = PageRequest.of(from, size);
-
-            foundRequests = requestRepository.findByUserNot(user, pageable);
-            log.info("get not user's ItemRequest: the list of item requests of the user with id {} has been " +
-                    "received. List : {}.", userId, foundRequests);
-        }
+        User user = findUser(userId);
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
+        List<ItemRequest> foundRequests = requestRepository.findByUserNot(user, pageable);
+        log.info("get not user's ItemRequest: the list of item requests of the user with id {} has been " +
+                "received. List (size = {}) : {}.", userId, foundRequests.size(), foundRequests);
         return foundRequests;
     }
 

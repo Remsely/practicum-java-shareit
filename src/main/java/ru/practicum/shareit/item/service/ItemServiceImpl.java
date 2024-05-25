@@ -2,11 +2,13 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
@@ -37,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingJpaRepository bookingRepository;
     private final CommentJpaRepository commentRepository;
     private final ItemRequestRepository requestRepository;
+    private final PageableUtility pageableUtility;
 
     @Override
     public Item addItem(Item item, long userId) {
@@ -87,10 +90,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemExtraInfoDto> getUserItems(long userId, ItemMapper itemMapper) {
+    public List<ItemExtraInfoDto> getUserItems(long userId, Integer from, Integer size, ItemMapper itemMapper) {
         User owner = findUser(userId);
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
 
-        List<Item> items = itemRepository.findByOwnerOrderById(owner);
+        List<Item> items = itemRepository.findByOwnerOrderById(owner, pageable);
+
         List<Comment> comments = commentRepository.findByItemIn(items);
         List<Booking> bookings = bookingRepository.findBookingsByItemInAndStatusOrderByItem(
                 items, BookingStatus.APPROVED);
@@ -107,15 +112,17 @@ public class ItemServiceImpl implements ItemService {
                         commentsByItem.getOrDefault(i, List.of()),
                         itemMapper)
                 ).collect(Collectors.toList());
-        log.info("get user's Items: the list of items of the user with id {} has been received. List : {}.",
-                userId, extraInfoItems);
+        log.info("get user's Items: the list of items of the user with id {} has been received. List (size = {}) : {}.",
+                userId, extraInfoItems.size(), extraInfoItems);
         return extraInfoItems;
     }
 
     @Override
-    public List<Item> searchItems(String query) {
-        List<Item> items = itemRepository.search(query);
-        log.info("The list of items requested by query \"{}\" has been received. List {}.", query, items);
+    public List<Item> searchItems(String query, Integer from, Integer size) {
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
+        List<Item> items = itemRepository.search(query, pageable);
+        log.info("The list of items requested by query \"{}\" has been received. List (size = {}) {}.",
+                query, items.size(), items);
         return items;
     }
 

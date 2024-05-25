@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getUsers() {
         List<User> users = userRepository.findAll();
-        log.info("get Users: a users list has been received. List : {}", users);
+        log.info("get Users: a users list has been received. List (size = {}) : {}", users.size(), users);
         return users;
     }
 

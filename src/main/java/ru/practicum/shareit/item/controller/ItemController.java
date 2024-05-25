@@ -49,24 +49,28 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemExtraInfoDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId) {
-        log.info("GET /items (X-Sharer-User-id = {})", userId);
-        return itemService.getUserItems(userId, itemMapper);
+    public List<ItemExtraInfoDto> getItems(@RequestHeader("X-Sharer-User-id") Long userId,
+                                           @RequestParam(required = false) Integer from,
+                                           @RequestParam(required = false) Integer size) {
+        log.info("GET /items?from={}&size={} (X-Sharer-User-id = {})", from, size, userId);
+        return itemService.getUserItems(userId, from, size, itemMapper);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
-        log.info("GET /items/search?text={}", text);
+    public List<ItemDto> searchItems(@RequestParam String text,
+                                     @RequestParam(required = false) Integer from,
+                                     @RequestParam(required = false) Integer size) {
+        log.info("GET /items/search?text={}&from={}&size={}", text, from, size);
         if (text == null || text.isEmpty()) {
             return List.of();
         }
-        return itemMapper.toDtoList(itemService.searchItems(text));
+        return itemMapper.toDtoList(itemService.searchItems(text, from, size));
     }
 
     @PostMapping("/{id}/comment")
     public CommentDto addComment(@Valid @RequestBody CommentDto commentDto,
-                              @PathVariable long id,
-                              @RequestHeader("X-Sharer-User-id") Long userId) {
+                                 @PathVariable long id,
+                                 @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("POST /items/{}/comment (X-Sharer-User-id = {}). Request body : {}", id, userId, commentDto);
         Comment comment = commentMapper.toEntity(commentDto);
         return commentMapper.toDto(itemService.addComment(comment, id, userId));
