@@ -8,16 +8,16 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Component
 public class PageableUtility {
-    public boolean isPageableArgumentsNull(Integer from, Integer size) {
+    private boolean isPageableArgumentsNull(Integer from, Integer size) {
         return from == null || size == null;
     }
 
-    public void checkPageableArguments(Integer page, Integer size) {
-        if (page < 0 || size <= 0) {
+    private void checkPageableArguments(Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
             throw new IllegalPageableArgumentsException(
                     ErrorResponse.builder()
                             .reason("ItemRequestService get all requests")
-                            .error("Arguments from: " + page + ", size: " + size + ".")
+                            .error("Arguments from: " + from + ", size: " + size + ".")
                             .build()
             );
         }

@@ -17,21 +17,21 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
 public class ItemRequestController {
-    private final ItemRequestService itemRequestService;
-    private final ItemRequestMapper itemRequestMapper;
+    private final ItemRequestService requestService;
+    private final ItemRequestMapper requestMapper;
 
     @PostMapping
     public ItemRequestDto postItemRequest(@Valid @RequestBody ItemRequestCreationDto dto,
                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Post /requests (X-Sharer-User-id = {}). Request body : {}", userId, dto);
-        ItemRequest request = itemRequestMapper.toEntity(dto);
-        return itemRequestMapper.toDto(itemRequestService.addRequest(request, userId));
+        ItemRequest request = requestMapper.toEntity(dto);
+        return requestMapper.toDto(requestService.addRequest(request, userId));
     }
 
     @GetMapping
     public List<ItemRequestDto> getUserItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Get /requests (X-Sharer-User-id = {})", userId);
-        return itemRequestMapper.toDtoList(itemRequestService.getUserRequests(userId));
+        return requestMapper.toDtoList(requestService.getUserRequests(userId));
     }
 
     @GetMapping("/all")
@@ -39,13 +39,13 @@ public class ItemRequestController {
                                                    @RequestParam(required = false) Integer from,
                                                    @RequestParam(required = false) Integer size) {
         log.info("Get /requests/all?from={}&size={} (X-Sharer-User-id = {})", from, size, userId);
-        return itemRequestMapper.toDtoList(itemRequestService.getAllRequests(from, size, userId));
+        return requestMapper.toDtoList(requestService.getAllRequests(from, size, userId));
     }
 
     @GetMapping("/{requestId}")
     public ItemRequestDto getRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
                                      @PathVariable Long requestId) {
         log.info("Get /requests/{}", requestId);
-        return itemRequestMapper.toDto(itemRequestService.getRequest(requestId, userId));
+        return requestMapper.toDto(requestService.getRequest(requestId, userId));
     }
 }

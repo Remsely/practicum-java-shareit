@@ -171,7 +171,7 @@ public class BookingServiceImpl implements BookingService {
                 ));
     }
 
-    private boolean userIsOwner(Booking booking, long userId) {
+    private boolean userIsItemOwner(Booking booking, long userId) {
         return booking.getItem().getOwner().getId() == userId;
     }
 
@@ -180,7 +180,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void checkBookerIsNotOwner(Booking booking, long userId) {
-        if (userIsOwner(booking, userId)) {
+        if (userIsItemOwner(booking, userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")
@@ -190,7 +190,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void checkOwner(Booking booking, long userId) {
-        if (!userIsOwner(booking, userId)) {
+        if (!userIsItemOwner(booking, userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")
@@ -222,7 +222,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void checkUserAccessRights(Booking booking, long userId) {
-        if (!userIsOwner(booking, userId) && !userIsBooker(booking, userId)) {
+        if (!userIsItemOwner(booking, userId) && !userIsBooker(booking, userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")

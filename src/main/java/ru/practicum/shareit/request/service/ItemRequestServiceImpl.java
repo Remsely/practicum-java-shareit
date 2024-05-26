@@ -34,6 +34,15 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    public ItemRequest getRequest(long requestId, long userId) {
+        checkUserExistence(userId);
+        ItemRequest request = findRequest(requestId);
+        log.info("get ItemRequest: an item request with an id {} has been found. ItemRequest : {}.",
+                requestId, request);
+        return request;
+    }
+
+    @Override
     public List<ItemRequest> getUserRequests(long userId) {
         User user = findUser(userId);
         List<ItemRequest> foundRequests = requestRepository.findByUser(user);
@@ -50,15 +59,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("get not user's ItemRequest: the list of item requests of the user with id {} has been " +
                 "received. List (size = {}) : {}.", userId, foundRequests.size(), foundRequests);
         return foundRequests;
-    }
-
-    @Override
-    public ItemRequest getRequest(long requestId, long userId) {
-        checkUserExistence(userId);
-        ItemRequest request = findRequest(requestId);
-        log.info("get ItemRequest: an item request with an id {} has been found. ItemRequest : {}.",
-                requestId, request);
-        return request;
     }
 
     private User findUser(long userId) {

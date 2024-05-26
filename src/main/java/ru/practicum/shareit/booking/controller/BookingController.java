@@ -59,12 +59,10 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getCurrentUserItemsBookings(
-            @RequestHeader("X-Sharer-User-id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestParam(required = false) Integer from,
-            @RequestParam(required = false) Integer size
-    ) {
+    public List<BookingDto> getUserItemsBookings(@RequestHeader("X-Sharer-User-id") Long userId,
+                                                 @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                 @RequestParam(required = false) Integer from,
+                                                 @RequestParam(required = false) Integer size) {
         log.info("GET /bookings/owner?state={}&from={}&size={} (X-Sharer-User-id = {})", state, from, size, userId);
         return bookingMapper.toDtoList(bookingService.getUserItemsBookings(
                 userId, castStateWithExceptionMapping(state), from, size)
@@ -75,12 +73,16 @@ public class BookingController {
         if (to.isBefore(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .error("The end date can't be earlier than the start date!").build());
+                    .error("The end date can't be earlier than the start date!")
+                    .build()
+            );
         }
         if (to.isEqual(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .error("The end date can't be equal to the start date!").build());
+                    .error("The end date can't be equal to the start date!")
+                    .build()
+            );
         }
     }
 
@@ -90,7 +92,8 @@ public class BookingController {
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStateException(ErrorResponse.builder()
                     .reason("State parameter")
-                    .error("Unknown state: " + state).build()
+                    .error("Unknown state: " + state)
+                    .build()
             );
         }
     }
