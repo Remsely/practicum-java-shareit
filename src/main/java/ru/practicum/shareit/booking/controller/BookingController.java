@@ -48,10 +48,10 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getCurrentUserBookings(@RequestHeader("X-Sharer-User-id") Long userId,
-                                                   @RequestParam(required = false, defaultValue = "ALL") String state,
-                                                   @RequestParam(required = false) Integer from,
-                                                   @RequestParam(required = false) Integer size) {
+    public List<BookingDto> getUserBookings(@RequestHeader("X-Sharer-User-id") Long userId,
+                                            @RequestParam(required = false, defaultValue = "ALL") String state,
+                                            @RequestParam(required = false) Integer from,
+                                            @RequestParam(required = false) Integer size) {
         log.info("GET /bookings?state={}&from={}&size={} (X-Sharer-User-id = {})", state, from, size, userId);
         return bookingMapper.toDtoList(
                 bookingService.getUserBookings(userId, castStateWithExceptionMapping(state), from, size)
