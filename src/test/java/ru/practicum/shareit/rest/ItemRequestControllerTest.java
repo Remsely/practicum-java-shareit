@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -31,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.TestUtility.getStringFromDate;
 
 @WebMvcTest(ItemRequestController.class)
 public class ItemRequestControllerTest {
@@ -278,9 +278,5 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.description", is(dto.getDescription())))
                 .andExpect(jsonPath("$.created", is(getStringFromDate(dto.getCreated()))))
                 .andExpect(jsonPath("$.items", is(dto.getItems())));
-    }
-
-    private String getStringFromDate(LocalDateTime date) {
-        return date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }
