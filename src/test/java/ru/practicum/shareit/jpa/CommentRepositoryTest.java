@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.CommentJpaRepository;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-public class CommentJpaRepositoryTest {
+public class CommentRepositoryTest {
     @Autowired
-    private CommentJpaRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Autowired
     private TestEntityManager entityManager;

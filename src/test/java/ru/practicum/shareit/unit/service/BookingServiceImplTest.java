@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.controller.BookingState;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.AlreadyApprovedException;
@@ -19,9 +19,9 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,13 +35,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceImplTest {
     @Mock
-    private BookingJpaRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
     @Mock
-    private UserJpaRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
-    private ItemJpaRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Mock
     private PageableUtility pageableUtility;
@@ -245,7 +245,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    public void testGetBookingById_Success() {
+    public void testGetBookingByIdByBooker_Success() {
         simpleBooking.setBooker(simpleUser);
         simpleBooking.getItem().setOwner(otherOwner);
 
@@ -253,6 +253,20 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleBooking));
 
         Booking booking = bookingService.getBookingById(1, 1);
+
+        assertEquals(booking, simpleBooking);
+        verify(bookingRepository).findById(1L);
+    }
+
+    @Test
+    public void testGetBookingByIdByItemOwner_Success() {
+        simpleBooking.setBooker(simpleUser);
+        simpleBooking.getItem().setOwner(otherOwner);
+
+        when(bookingRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(simpleBooking));
+
+        Booking booking = bookingService.getBookingById(1, 2);
 
         assertEquals(booking, simpleBooking);
         verify(bookingRepository).findById(1L);

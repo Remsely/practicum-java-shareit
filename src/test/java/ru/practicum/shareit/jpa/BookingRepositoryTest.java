@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-public class BookingJpaRepositoryTest {
+public class BookingRepositoryTest {
     @Autowired
-    private BookingJpaRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
     @Autowired
     private TestEntityManager entityManager;

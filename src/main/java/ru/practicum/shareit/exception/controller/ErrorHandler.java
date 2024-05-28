@@ -20,14 +20,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleUserWithSuchEmailExist(UserAlreadyExistException e) {
-        ErrorResponse errorResponse = e.getErrorResponse();
-        log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
-        return errorResponse;
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserWithoutAccess(UserWithoutAccessRightsException e) {
         ErrorResponse errorResponse = e.getErrorResponse();

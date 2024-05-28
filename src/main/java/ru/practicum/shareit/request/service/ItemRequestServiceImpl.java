@@ -10,7 +10,7 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
-    private final UserJpaRepository userRepository;
+    private final UserRepository userRepository;
     private final PageableUtility pageableUtility;
 
     @Override

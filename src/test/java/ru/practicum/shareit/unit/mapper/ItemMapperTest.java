@@ -2,6 +2,7 @@ package ru.practicum.shareit.unit.mapper;
 
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -116,7 +117,7 @@ public class ItemMapperTest {
 
     @Test
     public void testToEntityFromItemCreationDto() {
-        ItemDto dto = ItemDto.builder()
+        ItemCreationDto dto = ItemCreationDto.builder()
                 .id(1L)
                 .name("name")
                 .description("description")

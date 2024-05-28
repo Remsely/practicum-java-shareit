@@ -21,6 +21,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.AlreadyApprovedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -119,7 +120,8 @@ public class BookingControllerTest {
                         .content(mapper.writeValueAsString(dto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -144,7 +146,8 @@ public class BookingControllerTest {
                         .content(mapper.writeValueAsString(dto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -158,7 +161,24 @@ public class BookingControllerTest {
                         .content(mapper.writeValueAsString(dto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testAddBooking_EndEqualsStart() throws Exception {
+        LocalDateTime time = LocalDateTime.now().plusDays(8);
+        BookingCreationDto dto = BookingCreationDto.builder()
+                .start(time)
+                .end(time)
+                .build();
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(dto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -186,6 +206,22 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-id", user.getId().toString()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testAddBooking_UnavailableItem() throws Exception {
+        when(bookingMapper.toEntity(Mockito.any(BookingCreationDto.class)))
+                .thenReturn(booking);
+        when(bookingService.addBooking(Mockito.any(Booking.class), Mockito.anyLong()))
+                .thenThrow(new UnavailableItemException(ErrorResponse.builder().build()));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(dto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -349,6 +385,16 @@ public class BookingControllerTest {
     }
 
     @Test
+    public void testGetUserBookings_UnsupportedState() throws Exception {
+        mvc.perform(get("/bookings?state=unsupported")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     public void testGetUserBookings_UserDoesNotExists() throws Exception {
         when(bookingService.getUserBookings(
                 Mockito.anyLong(),
@@ -399,6 +445,16 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testGetUserItemsBookings_UnsupportedState() throws Exception {
+        mvc.perform(get("/bookings/owner?state=unsupported")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

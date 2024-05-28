@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingInsideItemDto;
 import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.IllegalPageableArgumentsException;
 import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
@@ -364,6 +365,24 @@ public class ItemControllerTest {
     }
 
     @Test
+    public void testGetItems_UnavailablePageable() throws Exception {
+        when(itemService.getUserItems(
+                Mockito.anyLong(),
+                Mockito.nullable(Integer.class),
+                Mockito.nullable(Integer.class),
+                Mockito.any(ItemMapper.class)
+        )).thenThrow(new IllegalPageableArgumentsException(ErrorResponse.builder().build()));
+
+        mvc.perform(get("/items")
+                        .content(mapper.writeValueAsString(dto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-id", user.getId().toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testGetItems_Success() throws Exception {
         when(itemService.getUserItems(
                 Mockito.anyLong(),
@@ -390,8 +409,19 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void testSearchItems_textIsEmpty() throws Exception {
+    public void testSearchItems_textIsBlank() throws Exception {
         mvc.perform(get("/items/search?text=%20")
+                        .content(mapper.writeValueAsString(dto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void testSearchItems_textIsEmpty() throws Exception {
+        mvc.perform(get("/items/search?text=")
                         .content(mapper.writeValueAsString(dto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

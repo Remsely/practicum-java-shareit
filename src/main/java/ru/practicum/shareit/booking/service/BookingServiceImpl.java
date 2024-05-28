@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.controller.BookingState;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.AlreadyApprovedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -16,9 +16,9 @@ import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,9 +27,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    private final BookingJpaRepository bookingRepository;
-    private final UserJpaRepository userRepository;
-    private final ItemJpaRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
     private final PageableUtility pageableUtility;
 
     @Transactional
@@ -77,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getUserBookings(long userId, BookingState state, Integer from, Integer size) {
         User booker = findUser(userId);
         Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
-        List<Booking> bookings;
+        List<Booking> bookings = null;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findByBookerOrderByStartDesc(booker, pageable);
@@ -102,8 +102,6 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(
                         booker, BookingStatus.REJECTED, pageable);
                 break;
-            default:
-                throw new RuntimeException("Unsupported booking state" + state);
         }
         log.info("get Bookings: a bookings with an owner with id {} have been received. List (size = {}) : {}.",
                 userId, bookings.size(), bookings);
@@ -114,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getUserItemsBookings(long userId, BookingState state, Integer from, Integer size) {
         User owner = findUser(userId);
         Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
-        List<Booking> bookings;
+        List<Booking> bookings = null;
         switch (state) {
             case ALL:
                 bookings = bookingRepository.findByItemOwnerOrderByStartDesc(owner, pageable);
@@ -134,8 +132,6 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 bookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED, pageable);
                 break;
-            default:
-                throw new RuntimeException("Unsupported booking state" + state);
         }
         log.info("get Bookings: a bookings for the user with id {} items have been received. List (size = {}) : {}.",
                 userId, bookings.size(), bookings);

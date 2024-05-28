@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
-public class ItemJpaRepositoryTest {
+public class ItemRepositoryTest {
     @Autowired
-    private ItemJpaRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
     private TestEntityManager entityManager;

@@ -25,6 +25,8 @@ public class PageableUtilityTest {
     @Test
     public void testGetPageableFromArguments_NullArguments() {
         assertEquals(pageableUtility.getPageableFromArguments(null, null), Pageable.unpaged());
+        assertEquals(pageableUtility.getPageableFromArguments(null, 3), Pageable.unpaged());
+        assertEquals(pageableUtility.getPageableFromArguments(3, null), Pageable.unpaged());
     }
 
     @Test

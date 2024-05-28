@@ -14,7 +14,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,7 @@ public class ItemRequestServiceImplTest {
     private ItemRequestRepository requestRepository;
 
     @Mock
-    private UserJpaRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
     private PageableUtility pageableUtility;

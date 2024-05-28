@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
     @EntityGraph(attributePaths = {"booker", "item"})
     List<Booking> findByBookerOrderByStartDesc(User booker, Pageable pageable);
 

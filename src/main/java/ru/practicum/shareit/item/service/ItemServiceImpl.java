@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
@@ -17,12 +17,12 @@ import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.CommentJpaRepository;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -34,10 +34,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final ItemJpaRepository itemRepository;
-    private final UserJpaRepository userRepository;
-    private final BookingJpaRepository bookingRepository;
-    private final CommentJpaRepository commentRepository;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
     private final ItemRequestRepository requestRepository;
     private final PageableUtility pageableUtility;
 

@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
@@ -19,13 +19,13 @@ import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.CommentJpaRepository;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,16 +39,16 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceImplTest {
     @Mock
-    private ItemJpaRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Mock
-    private UserJpaRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
-    private BookingJpaRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
     @Mock
-    private CommentJpaRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Mock
     private ItemRequestRepository requestRepository;
@@ -214,6 +214,7 @@ public class ItemServiceImplTest {
     @Test
     public void testUpdateItem_Success() {
         simpleItem.setOwner(simpleUser);
+        simpleItem.setAvailable(false);
 
         when(itemRepository.findById(Mockito.anyLong()))
                 .thenReturn(Optional.of(simpleItem));
@@ -223,6 +224,25 @@ public class ItemServiceImplTest {
                 .thenReturn(simpleItem);
 
         assertEquals(simpleItem, itemService.updateItem(simpleItem, 1, 1));
+
+        verify(itemRepository).findById(1L);
+        verify(userRepository).findById(1L);
+        verify(itemRepository).save(simpleItem);
+    }
+
+    @Test
+    public void testUpdateItem_WithoutChangesSuccess() {
+        simpleItem.setOwner(simpleUser);
+        simpleItem.setAvailable(false);
+
+        when(itemRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(simpleItem));
+        when(userRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(simpleUser));
+        when(itemRepository.save(Mockito.any(Item.class)))
+                .thenReturn(simpleItem);
+
+        assertEquals(simpleItem, itemService.updateItem(Item.builder().build(), 1, 1));
 
         verify(itemRepository).findById(1L);
         verify(userRepository).findById(1L);

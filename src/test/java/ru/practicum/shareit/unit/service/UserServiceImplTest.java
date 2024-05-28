@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
     @Mock
-    private UserJpaRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -64,6 +64,18 @@ public class UserServiceImplTest {
                 .thenReturn(simpleUser);
 
         assertEquals(simpleUser, userService.updateUser(simpleUser, 1));
+        verify(userRepository).findById(1L);
+        verify(userRepository).save(simpleUser);
+    }
+
+    @Test
+    public void testUpdateUser_WithoutChangesSuccess() {
+        when(userRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.of(simpleUser));
+        when(userRepository.save(Mockito.any(User.class)))
+                .thenReturn(simpleUser);
+
+        assertEquals(simpleUser, userService.updateUser(User.builder().build(), 1));
         verify(userRepository).findById(1L);
         verify(userRepository).save(simpleUser);
     }

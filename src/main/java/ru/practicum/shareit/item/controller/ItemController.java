@@ -61,7 +61,7 @@ public class ItemController {
                                      @RequestParam(required = false) Integer from,
                                      @RequestParam(required = false) Integer size) {
         log.info("GET /items/search?text={}&from={}&size={}", text, from, size);
-        if (text == null || text.isEmpty()) {
+        if (text.isBlank()) {
             return List.of();
         }
         return itemMapper.toDtoList(itemService.searchItems(text, from, size));
