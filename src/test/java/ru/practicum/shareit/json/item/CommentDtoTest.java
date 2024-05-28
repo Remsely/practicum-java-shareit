@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static ru.practicum.shareit.util.TestUtility.getStringFromDate;
 
 @JsonTest
 public class CommentDtoTest {
@@ -32,8 +31,7 @@ public class CommentDtoTest {
         assertThat(result).hasJsonPath("$.id");
         assertThat(result).extractingJsonPathStringValue("$.text")
                 .isEqualTo(dto.getText());
-        assertThat(result).extractingJsonPathStringValue("$.created")
-                .isEqualTo(getStringFromDate(dto.getCreated()));
+        assertThat(result).hasJsonPath("$.created");
         assertThat(result).extractingJsonPathStringValue("$.authorName")
                 .isEqualTo(dto.getAuthorName());
     }

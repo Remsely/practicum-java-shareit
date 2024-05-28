@@ -43,12 +43,16 @@ public class ItemMapper {
     }
 
     public Item toEntity(ItemDto itemDto) {
+        Long requestId = itemDto.getRequestId();
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .build();
+                .request(requestId == null ? null : ItemRequest.builder()
+                        .id(requestId)
+                        .build()
+                ).build();
     }
 
     public Item toEntity(ItemCreationDto itemDto) {
@@ -60,8 +64,8 @@ public class ItemMapper {
                 .available(itemDto.getAvailable())
                 .request(requestId == null ? null : ItemRequest.builder()
                         .id(requestId)
-                        .build())
-                .build();
+                        .build()
+                ).build();
     }
 
     public List<ItemDto> toDtoList(List<Item> items) {
