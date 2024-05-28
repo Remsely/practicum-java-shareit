@@ -30,7 +30,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.util.TestUtility.getStringFromDate;
 
 @WebMvcTest(ItemController.class)
 public class ItemControllerTest {
@@ -521,9 +521,5 @@ public class ItemControllerTest {
     private Map<String, Object> getAsMap(BookingInsideItemDto booking) throws JsonProcessingException {
         return mapper.readValue(mapper.writeValueAsString(booking), new TypeReference<>() {
         });
-    }
-
-    private String getStringFromDate(LocalDateTime date) {
-        return date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }
