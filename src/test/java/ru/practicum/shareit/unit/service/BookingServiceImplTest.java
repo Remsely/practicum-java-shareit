@@ -277,7 +277,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByBookerOrderByStartDesc(
+        when(bookingRepository.findByBookerOrderByStartDesc(
                 Mockito.any(User.class), Mockito.any(Pageable.class))
         ).thenReturn(bookings);
 
@@ -285,7 +285,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByBookerOrderByStartDesc(simpleUser, Pageable.unpaged());
+        verify(bookingRepository).findByBookerOrderByStartDesc(simpleUser, Pageable.unpaged());
     }
 
     @Test
@@ -296,7 +296,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
+        when(bookingRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(LocalDateTime.class),
@@ -307,7 +307,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
+        verify(bookingRepository).findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(LocalDateTime.class),
@@ -323,7 +323,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByBookerAndEndBeforeOrderByStartDesc(
+        when(bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -333,7 +333,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByBookerAndEndBeforeOrderByStartDesc(
+        verify(bookingRepository).findByBookerAndEndBeforeOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -348,7 +348,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByBookerAndStartAfterOrderByStartDesc(
+        when(bookingRepository.findByBookerAndStartAfterOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -358,7 +358,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByBookerAndStartAfterOrderByStartDesc(
+        verify(bookingRepository).findByBookerAndStartAfterOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -373,7 +373,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
+        when(bookingRepository.findByBookerAndStatusOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(BookingStatus.class),
                 Mockito.any(Pageable.class)
@@ -383,7 +383,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByBookerAndStatusOrderByStartDesc(
+        verify(bookingRepository).findByBookerAndStatusOrderByStartDesc(
                 simpleUser,
                 BookingStatus.WAITING,
                 Pageable.unpaged()
@@ -398,7 +398,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
+        when(bookingRepository.findByBookerAndStatusOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(BookingStatus.class),
                 Mockito.any(Pageable.class)
@@ -408,7 +408,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByBookerAndStatusOrderByStartDesc(
+        verify(bookingRepository).findByBookerAndStatusOrderByStartDesc(
                 simpleUser,
                 BookingStatus.REJECTED,
                 Pageable.unpaged()
@@ -434,7 +434,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByItemOwner(
+        when(bookingRepository.findByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class), Mockito.any(Pageable.class))
         ).thenReturn(bookings);
 
@@ -442,7 +442,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByItemOwner(simpleUser, Pageable.unpaged());
+        verify(bookingRepository).findByItemOwnerOrderByStartDesc(simpleUser, Pageable.unpaged());
     }
 
     @Test
@@ -453,7 +453,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findCurrentBookingsByItemOwner(
+        when(bookingRepository.findCurrentByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -463,7 +463,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findCurrentBookingsByItemOwner(
+        verify(bookingRepository).findCurrentByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -478,7 +478,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findPastBookingsByItemOwner(
+        when(bookingRepository.findPastByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -488,7 +488,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findPastBookingsByItemOwner(
+        verify(bookingRepository).findPastByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -503,7 +503,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findFutureBookingsByItemOwner(
+        when(bookingRepository.findFutureByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -513,7 +513,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findFutureBookingsByItemOwner(
+        verify(bookingRepository).findFutureByItemOwnerOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(LocalDateTime.class),
                 Mockito.any(Pageable.class)
@@ -528,7 +528,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByItemOwnerAndStatus(
+        when(bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(BookingStatus.class),
                 Mockito.any(Pageable.class)
@@ -538,7 +538,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByItemOwnerAndStatus(
+        verify(bookingRepository).findByItemOwnerAndStatusOrderByStartDesc(
                 simpleUser,
                 BookingStatus.WAITING,
                 Pageable.unpaged()
@@ -553,7 +553,7 @@ public class BookingServiceImplTest {
                 .thenReturn(Optional.of(simpleUser));
         when(pageableUtility.getPageableFromArguments(Mockito.isNull(), Mockito.isNull()))
                 .thenReturn(Pageable.unpaged());
-        when(bookingRepository.findBookingsByItemOwnerAndStatus(
+        when(bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(
                 Mockito.any(User.class),
                 Mockito.any(BookingStatus.class),
                 Mockito.any(Pageable.class)
@@ -563,7 +563,7 @@ public class BookingServiceImplTest {
 
         verify(userRepository).findById(1L);
         verify(pageableUtility).getPageableFromArguments(null, null);
-        verify(bookingRepository).findBookingsByItemOwnerAndStatus(
+        verify(bookingRepository).findByItemOwnerAndStatusOrderByStartDesc(
                 simpleUser,
                 BookingStatus.REJECTED,
                 Pageable.unpaged()

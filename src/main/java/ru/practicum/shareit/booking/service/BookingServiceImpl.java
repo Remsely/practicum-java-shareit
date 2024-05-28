@@ -80,26 +80,26 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findBookingsByBookerOrderByStartDesc(booker, pageable);
+                bookings = bookingRepository.findByBookerOrderByStartDesc(booker, pageable);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
+                bookings = bookingRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
                         booker, LocalDateTime.now(), LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = bookingRepository.findBookingsByBookerAndEndBeforeOrderByStartDesc(
+                bookings = bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(
                         booker, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findBookingsByBookerAndStartAfterOrderByStartDesc(
+                bookings = bookingRepository.findByBookerAndStartAfterOrderByStartDesc(
                         booker, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
+                bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(
                         booker, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
+                bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(
                         booker, BookingStatus.REJECTED, pageable);
                 break;
             default:
@@ -117,22 +117,22 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findBookingsByItemOwner(owner, pageable);
+                bookings = bookingRepository.findByItemOwnerOrderByStartDesc(owner, pageable);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByItemOwner(owner, LocalDateTime.now(), pageable);
+                bookings = bookingRepository.findCurrentByItemOwnerOrderByStartDesc(owner, LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByItemOwner(owner, LocalDateTime.now(), pageable);
+                bookings = bookingRepository.findPastByItemOwnerOrderByStartDesc(owner, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByItemOwner(owner, LocalDateTime.now(), pageable);
+                bookings = bookingRepository.findFutureByItemOwnerOrderByStartDesc(owner, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(owner, BookingStatus.WAITING, pageable);
+                bookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(owner, BookingStatus.REJECTED, pageable);
+                bookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED, pageable);
                 break;
             default:
                 throw new RuntimeException("Unsupported booking state" + state);

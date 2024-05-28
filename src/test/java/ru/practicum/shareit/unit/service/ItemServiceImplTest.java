@@ -294,7 +294,7 @@ public class ItemServiceImplTest {
                 Mockito.nullable(Booking.class),
                 Mockito.anyList())
         ).thenReturn(extraInfoDto);
-        when(bookingRepository.findBookingsByItemAndStatus(Mockito.any(Item.class), Mockito.any(BookingStatus.class)))
+        when(bookingRepository.findByItemAndStatus(Mockito.any(Item.class), Mockito.any(BookingStatus.class)))
                 .thenReturn(List.of(simpleBooking));
 
         ItemExtraInfoDto dto = itemService.getItem(1, 1, itemMapper);
@@ -303,7 +303,7 @@ public class ItemServiceImplTest {
         verify(userRepository).existsById(1L);
         verify(itemRepository).findById(1L);
         verify(commentRepository).findByItem(simpleItem);
-        verify(bookingRepository).findBookingsByItemAndStatus(simpleItem, BookingStatus.APPROVED);
+        verify(bookingRepository).findByItemAndStatus(simpleItem, BookingStatus.APPROVED);
         verify(itemMapper).toDto(simpleItem, null, simpleBooking, List.of(simpleComment));
     }
 
@@ -330,7 +330,7 @@ public class ItemServiceImplTest {
                 .thenReturn(List.of(simpleItem));
         when(commentRepository.findByItemIn(Mockito.anyList()))
                 .thenReturn(List.of(simpleComment));
-        when(bookingRepository.findBookingsByItemInAndStatusOrderByItem(
+        when(bookingRepository.findByItemInAndStatusOrderByItem(
                 Mockito.anyList(),
                 Mockito.any(BookingStatus.class))
         ).thenReturn(List.of(simpleBooking));
@@ -348,7 +348,7 @@ public class ItemServiceImplTest {
         verify(pageableUtility).getPageableFromArguments(0, 2);
         verify(itemRepository).findByOwnerOrderById(simpleUser, Pageable.unpaged());
         verify(commentRepository).findByItemIn(List.of(simpleItem));
-        verify(bookingRepository).findBookingsByItemInAndStatusOrderByItem(List.of(simpleItem), BookingStatus.APPROVED);
+        verify(bookingRepository).findByItemInAndStatusOrderByItem(List.of(simpleItem), BookingStatus.APPROVED);
         verify(itemMapper).toDto(simpleItem, null, simpleBooking, List.of(simpleComment));
     }
 
@@ -356,12 +356,12 @@ public class ItemServiceImplTest {
     public void testSearchItems_Success() {
         when(pageableUtility.getPageableFromArguments(Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(Pageable.unpaged());
-        when(itemRepository.search(Mockito.anyString(), Mockito.any(Pageable.class)))
+        when(itemRepository.searchByNameOrDescription(Mockito.anyString(), Mockito.any(Pageable.class)))
                 .thenReturn(List.of(simpleItem));
 
         assertEquals(List.of(simpleItem), itemService.searchItems("asd", 0, 2));
         verify(pageableUtility).getPageableFromArguments(0, 2);
-        verify(itemRepository).search("asd", Pageable.unpaged());
+        verify(itemRepository).searchByNameOrDescription("asd", Pageable.unpaged());
     }
 
     @Test

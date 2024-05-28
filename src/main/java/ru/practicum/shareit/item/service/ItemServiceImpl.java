@@ -81,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
             return dto;
         }
 
-        List<Booking> bookings = bookingRepository.findBookingsByItemAndStatus(item, BookingStatus.APPROVED);
+        List<Booking> bookings = bookingRepository.findByItemAndStatus(item, BookingStatus.APPROVED);
 
         ItemExtraInfoDto dto = findLastAndNextBookingForItem(item, bookings, comments, itemMapper);
         log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
@@ -97,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findByOwnerOrderById(owner, pageable);
 
         List<Comment> comments = commentRepository.findByItemIn(items);
-        List<Booking> bookings = bookingRepository.findBookingsByItemInAndStatusOrderByItem(
+        List<Booking> bookings = bookingRepository.findByItemInAndStatusOrderByItem(
                 items, BookingStatus.APPROVED);
 
         Map<Item, List<Comment>> commentsByItem = comments.stream()
@@ -120,7 +120,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> searchItems(String query, Integer from, Integer size) {
         Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
-        List<Item> items = itemRepository.search(query, pageable);
+        List<Item> items = itemRepository.searchByNameOrDescription(query, pageable);
         log.info("The list of items requested by query \"{}\" has been received. List (size = {}) {}.",
                 query, items.size(), items);
         return items;

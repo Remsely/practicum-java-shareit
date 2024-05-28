@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
@@ -12,58 +13,59 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 public interface BookingJpaRepository extends JpaRepository<Booking, Long> {
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByBookerOrderByStartDesc(User booker, Pageable pageable);
+    List<Booking> findByBookerOrderByStartDesc(User booker, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
+    List<Booking> findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
             User booker, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByBookerAndEndBeforeOrderByStartDesc(User booker, LocalDateTime end, Pageable pageable);
+    List<Booking> findByBookerAndEndBeforeOrderByStartDesc(User booker, LocalDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByBookerAndStartAfterOrderByStartDesc(User booker, LocalDateTime start, Pageable pageable);
+    List<Booking> findByBookerAndStartAfterOrderByStartDesc(User booker, LocalDateTime start, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByBookerAndStatusOrderByStartDesc(User booker, BookingStatus status, Pageable pageable);
+    List<Booking> findByBookerAndStatusOrderByStartDesc(User booker, BookingStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
     @Query(" select b from Booking b " +
             "where b.item.owner = ?1 " +
             "order by b.start desc")
-    List<Booking> findBookingsByItemOwner(User owner, Pageable pageable);
+    List<Booking> findByItemOwnerOrderByStartDesc(User owner, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.start <= :now and b.end >= :now " +
             "order by b.start desc")
-    List<Booking> findCurrentBookingsByItemOwner(User owner, LocalDateTime now, Pageable pageable);
+    List<Booking> findCurrentByItemOwnerOrderByStartDesc(User owner, LocalDateTime now, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.end < :now " +
             "order by b.start desc")
-    List<Booking> findPastBookingsByItemOwner(User owner, LocalDateTime now, Pageable pageable);
+    List<Booking> findPastByItemOwnerOrderByStartDesc(User owner, LocalDateTime now, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.start > :now " +
             "order by b.start desc")
-    List<Booking> findFutureBookingsByItemOwner(User owner, LocalDateTime now, Pageable pageable);
+    List<Booking> findFutureByItemOwnerOrderByStartDesc(User owner, LocalDateTime now, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
     @Query(" select b from Booking b " +
             "where b.item.owner = :owner and b.status = :status " +
             "order by b.start desc")
-    List<Booking> findBookingsByItemOwnerAndStatus(User owner, BookingStatus status, Pageable pageable);
+    List<Booking> findByItemOwnerAndStatusOrderByStartDesc(User owner, BookingStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByItemInAndStatusOrderByItem(List<Item> items, BookingStatus status);
+    List<Booking> findByItemInAndStatusOrderByItem(List<Item> items, BookingStatus status);
 
     @EntityGraph(attributePaths = {"booker", "item"})
-    List<Booking> findBookingsByItemAndStatus(Item item, BookingStatus status);
+    List<Booking> findByItemAndStatus(Item item, BookingStatus status);
 
     boolean existsByItemAndBookerAndStatusAndEndBefore(
             Item item, User booker, BookingStatus status, LocalDateTime end);
