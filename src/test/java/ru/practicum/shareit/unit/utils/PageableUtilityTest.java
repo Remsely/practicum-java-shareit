@@ -1,10 +1,16 @@
 package ru.practicum.shareit.unit.utils;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.IllegalPageableArgumentsException;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,21 +18,29 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class PageableUtilityTest {
     private final PageableUtility pageableUtility = new PageableUtility();
 
-    @Test
-    public void testGetPageableFromArguments_FailArguments() {
-        assertThrows(IllegalPageableArgumentsException.class, () ->
-                pageableUtility.getPageableFromArguments(-1, 2));
-        assertThrows(IllegalPageableArgumentsException.class, () ->
-                pageableUtility.getPageableFromArguments(2, 0));
-        assertThrows(IllegalPageableArgumentsException.class, () ->
-                pageableUtility.getPageableFromArguments(2, -1));
+    private static Stream<Arguments> testGetPageableFromArgumentsArguments() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(null, 3),
+                Arguments.of(3, null)
+        );
     }
 
-    @Test
-    public void testGetPageableFromArguments_NullArguments() {
-        assertEquals(pageableUtility.getPageableFromArguments(null, null), Pageable.unpaged());
-        assertEquals(pageableUtility.getPageableFromArguments(null, 3), Pageable.unpaged());
-        assertEquals(pageableUtility.getPageableFromArguments(3, null), Pageable.unpaged());
+    @ParameterizedTest
+    @CsvSource({
+            "-1, 2",
+            "2, 0",
+            "2, -1"
+    })
+    public void testGetPageableFromArguments_FailArguments(Integer from, Integer size) {
+        assertThrows(IllegalPageableArgumentsException.class, () ->
+                pageableUtility.getPageableFromArguments(from, size));
+    }
+
+    @ParameterizedTest
+    @MethodSource("testGetPageableFromArgumentsArguments")
+    public void testGetPageableFromArguments_NullArguments(Integer from, Integer size) {
+        assertEquals(pageableUtility.getPageableFromArguments(from, size), Pageable.unpaged());
     }
 
     @Test
