@@ -25,27 +25,22 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<?> postUser(UserCreationDto dto) {
-        logSending();
         return post("/", dto);
     }
 
     public ResponseEntity<?> patchUser(UserDto dto, long id) {
-        logSending();
         return patch("/" + id, dto);
     }
 
     public ResponseEntity<?> getUser(long id) {
-        logSending();
         return get("/" + id);
     }
 
     public ResponseEntity<?> deleteUser(long id) {
-        logSending();
         return delete("/" + id);
     }
 
     public ResponseEntity<?> getUsers() {
-        logSending();
         return get("/");
     }
 }

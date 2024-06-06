@@ -1,6 +1,5 @@
 package ru.practicum.shareit.common;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -9,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 public class BaseClient {
     protected final RestTemplate rest;
 
@@ -40,7 +38,6 @@ public class BaseClient {
     }
 
     protected ResponseEntity<Object> get(String path, Long userId, @Nullable Map<String, Object> parameters) {
-        log.info("{}", parameters);
         return makeAndSendRequest(HttpMethod.GET, path, userId, parameters, null);
     }
 
@@ -70,8 +67,8 @@ public class BaseClient {
         return patch(path, null, null, body);
     }
 
-    protected <T> ResponseEntity<Object> patch(String path, long userId) {
-        return patch(path, userId, null, null);
+    protected <T> ResponseEntity<Object> patch(String path, long userId, @Nullable Map<String, Object> parameters) {
+        return patch(path, userId, parameters, null);
     }
 
     protected <T> ResponseEntity<Object> patch(String path, long userId, T body) {
@@ -94,10 +91,6 @@ public class BaseClient {
     protected ResponseEntity<Object> delete(
             String path, Long userId, @Nullable Map<String, Object> parameters) {
         return makeAndSendRequest(HttpMethod.DELETE, path, userId, parameters, null);
-    }
-
-    protected void logSending() {
-        log.info("Request has been sent to server.");
     }
 
     private <T> ResponseEntity<Object> makeAndSendRequest(

@@ -8,12 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.DatesValidationException;
-import ru.practicum.shareit.exception.UnsupportedStateException;
-import ru.practicum.shareit.exception.model.ErrorResponse;
 
-import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -25,10 +20,9 @@ public class BookingController {
     private final BookingMapper bookingMapper;
 
     @PostMapping
-    public BookingDto addBooking(@Valid @RequestBody BookingCreationDto bookingDto,
+    public BookingDto addBooking(@RequestBody BookingCreationDto bookingDto,
                                  @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("POST /bookings (X-Sharer-User-id = {}). Request body : {}", userId, bookingDto);
-        validateDates(bookingDto.getStart(), bookingDto.getEnd());
         Booking booking = bookingMapper.toEntity(bookingDto);
         return bookingMapper.toDto(bookingService.addBooking(booking, userId));
     }
@@ -54,7 +48,7 @@ public class BookingController {
                                             @RequestParam(required = false) Integer size) {
         log.info("GET /bookings?state={}&from={}&size={} (X-Sharer-User-id = {})", state, from, size, userId);
         return bookingMapper.toDtoList(
-                bookingService.getUserBookings(userId, castStateWithExceptionMapping(state), from, size)
+                bookingService.getUserBookings(userId, BookingState.valueOf(state), from, size)
         );
     }
 
@@ -65,36 +59,7 @@ public class BookingController {
                                                  @RequestParam(required = false) Integer size) {
         log.info("GET /bookings/owner?state={}&from={}&size={} (X-Sharer-User-id = {})", state, from, size, userId);
         return bookingMapper.toDtoList(bookingService.getUserItemsBookings(
-                userId, castStateWithExceptionMapping(state), from, size)
+                userId, BookingState.valueOf(state), from, size)
         );
-    }
-
-    private void validateDates(LocalDateTime from, LocalDateTime to) {
-        if (to.isBefore(from)) {
-            throw new DatesValidationException(ErrorResponse.builder()
-                    .reason("Booking dates")
-                    .error("The end date can't be earlier than the start date!")
-                    .build()
-            );
-        }
-        if (to.isEqual(from)) {
-            throw new DatesValidationException(ErrorResponse.builder()
-                    .reason("Booking dates")
-                    .error("The end date can't be equal to the start date!")
-                    .build()
-            );
-        }
-    }
-
-    private BookingState castStateWithExceptionMapping(String state) {
-        try {
-            return BookingState.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            throw new UnsupportedStateException(ErrorResponse.builder()
-                    .reason("State parameter")
-                    .error("Unknown state: " + state)
-                    .build()
-            );
-        }
     }
 }
