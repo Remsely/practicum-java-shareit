@@ -16,7 +16,7 @@ public interface ItemService {
 
     List<ItemExtraInfoDto> getUserItems(long userId, Integer from, Integer size, ItemMapper itemMapper);
 
-    List<Item> searchItems(String query, Integer from, Integer size);
+    List<Item> searchItems(long userId, String query, Integer from, Integer size);
 
     Comment addComment(Comment comment, long itemId, long userId);
 }

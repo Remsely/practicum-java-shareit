@@ -379,7 +379,7 @@ public class ItemServiceImplTest {
         when(itemRepository.searchByNameOrDescription(Mockito.anyString(), Mockito.any(Pageable.class)))
                 .thenReturn(List.of(simpleItem));
 
-        assertEquals(List.of(simpleItem), itemService.searchItems("asd", 0, 2));
+        assertEquals(List.of(simpleItem), itemService.searchItems(1, "asd", 0, 2));
         verify(pageableUtility).getPageableFromArguments(0, 2);
         verify(itemRepository).searchByNameOrDescription("asd", Pageable.unpaged());
     }

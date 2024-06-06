@@ -3,16 +3,16 @@ package ru.practicum.shareit.item.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
 @Builder
-public class ItemCreationDto {
+public class ItemExtraInfoDto {
     private long id;
     private String name;
     private String description;
     private Boolean available;
-    private Long requestId;
+    private BookingInsideItemDto lastBooking;
+    private BookingInsideItemDto nextBooking;
+    private List<CommentDto> comments;
 }

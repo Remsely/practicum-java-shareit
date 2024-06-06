@@ -26,7 +26,7 @@ public class ItemController {
     private final CommentMapper commentMapper;
 
     @PostMapping
-    public ItemDto addItem(@Valid @RequestBody ItemCreationDto itemDto,
+    public ItemDto addItem(@RequestBody ItemDto itemDto,
                            @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("Post /items (X-Sharer-User-id = {}). Request body : {}", userId, itemDto);
         Item item = itemMapper.toEntity(itemDto);
@@ -34,7 +34,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ItemDto updateItem(@Valid @RequestBody ItemDto itemDto,
+    public ItemDto updateItem(@RequestBody ItemDto itemDto,
                               @PathVariable long id,
                               @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("Patch /items/{} (X-Sharer-User-id = {}). Request body : {}", id, userId, itemDto);
@@ -57,18 +57,16 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text,
+    public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-id") Long userId,
+                                     @RequestParam String text,
                                      @RequestParam(required = false) Integer from,
                                      @RequestParam(required = false) Integer size) {
         log.info("GET /items/search?text={}&from={}&size={}", text, from, size);
-        if (text.isBlank()) {
-            return List.of();
-        }
-        return itemMapper.toDtoList(itemService.searchItems(text, from, size));
+        return itemMapper.toDtoList(itemService.searchItems(userId, text, from, size));
     }
 
     @PostMapping("/{id}/comment")
-    public CommentDto addComment(@Valid @RequestBody CommentDto commentDto,
+    public CommentDto addComment(@RequestBody CommentDto commentDto,
                                  @PathVariable long id,
                                  @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("POST /items/{}/comment (X-Sharer-User-id = {}). Request body : {}", id, userId, commentDto);

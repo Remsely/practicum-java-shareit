@@ -118,7 +118,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> searchItems(String query, Integer from, Integer size) {
+    public List<Item> searchItems(long userId, String query, Integer from, Integer size) {
+        checkUserExistence(userId);
         Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
         List<Item> items = itemRepository.searchByNameOrDescription(query, pageable);
         log.info("The list of items requested by query \"{}\" has been received. List (size = {}) {}.",

@@ -433,6 +433,7 @@ public class ItemControllerTest {
     @Test
     public void testSearchItems_Success() throws Exception {
         when(itemService.searchItems(
+                Mockito.anyInt(),
                 Mockito.anyString(),
                 Mockito.nullable(Integer.class),
                 Mockito.nullable(Integer.class)

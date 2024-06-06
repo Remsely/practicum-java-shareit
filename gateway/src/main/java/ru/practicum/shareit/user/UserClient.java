@@ -48,8 +48,4 @@ public class UserClient extends BaseClient {
         logSending();
         return get("/");
     }
-
-    private void logSending() {
-        log.info("Request has been sent to server.");
-    }
 }
