@@ -6,6 +6,6 @@ import ru.practicum.shareit.exception.model.ErrorResponse;
 
 @Getter
 @RequiredArgsConstructor
-public class UserAlreadyExistException extends RuntimeException {
+public class IllegalPageableArgumentsException extends RuntimeException {
     private final ErrorResponse errorResponse;
 }

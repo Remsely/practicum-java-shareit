@@ -2,21 +2,23 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.controller.BookingState;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.AlreadyApprovedException;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.UnavailableItemException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,9 +27,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-    private final BookingJpaRepository bookingRepository;
-    private final UserJpaRepository userRepository;
-    private final ItemJpaRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final PageableUtility pageableUtility;
 
     @Transactional
     @Override
@@ -71,69 +74,67 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getUserBookings(long userId, BookingState state) {
+    public List<Booking> getUserBookings(long userId, BookingState state, Integer from, Integer size) {
         User booker = findUser(userId);
-        List<Booking> bookings;
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
+        List<Booking> bookings = null;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findBookingsByBookerOrderByStartDesc(booker);
+                bookings = bookingRepository.findByBookerOrderByStartDesc(booker, pageable);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findBookingsByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
-                        booker, LocalDateTime.now(), LocalDateTime.now());
+                bookings = bookingRepository.findByBookerAndStartBeforeAndEndAfterOrderByStartDesc(
+                        booker, LocalDateTime.now(), LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = bookingRepository.findBookingsByBookerAndEndBeforeOrderByStartDesc(
-                        booker, LocalDateTime.now());
+                bookings = bookingRepository.findByBookerAndEndBeforeOrderByStartDesc(
+                        booker, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findBookingsByBookerAndStartAfterOrderByStartDesc(
-                        booker, LocalDateTime.now());
+                bookings = bookingRepository.findByBookerAndStartAfterOrderByStartDesc(
+                        booker, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
-                        booker, BookingStatus.WAITING);
+                bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(
+                        booker, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByBookerAndStatusOrderByStartDesc(
-                        booker, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(
+                        booker, BookingStatus.REJECTED, pageable);
                 break;
-            default:
-                throw new RuntimeException("Unsupported booking state" + state);
         }
-        log.info("get Bookings: a bookings with an owner with id {} have been received. Bookings : {}.",
-                userId, bookings);
+        log.info("get Bookings: a bookings with an owner with id {} have been received. List (size = {}) : {}.",
+                userId, bookings.size(), bookings);
         return bookings;
     }
 
     @Override
-    public List<Booking> getUserItemsBookings(long userId, BookingState state) {
+    public List<Booking> getUserItemsBookings(long userId, BookingState state, Integer from, Integer size) {
         User owner = findUser(userId);
-        List<Booking> bookings;
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
+        List<Booking> bookings = null;
         switch (state) {
             case ALL:
-                bookings = bookingRepository.findBookingsByItemOwner(owner);
+                bookings = bookingRepository.findByItemOwnerOrderByStartDesc(owner, pageable);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByItemOwner(owner, LocalDateTime.now());
+                bookings = bookingRepository.findCurrentByItemOwnerOrderByStartDesc(owner, LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByItemOwner(owner, LocalDateTime.now());
+                bookings = bookingRepository.findPastByItemOwnerOrderByStartDesc(owner, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByItemOwner(owner, LocalDateTime.now());
+                bookings = bookingRepository.findFutureByItemOwnerOrderByStartDesc(owner, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(owner, BookingStatus.WAITING);
+                bookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByItemOwnerAndStatus(owner, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED, pageable);
                 break;
-            default:
-                throw new RuntimeException("Unsupported booking state" + state);
         }
-        log.info("get Bookings: a bookings for the user with id {} items have been received. Bookings : {}.",
-                userId, bookings);
+        log.info("get Bookings: a bookings for the user with id {} items have been received. List (size = {}) : {}.",
+                userId, bookings.size(), bookings);
         return bookings;
     }
 
@@ -166,7 +167,7 @@ public class BookingServiceImpl implements BookingService {
                 ));
     }
 
-    private boolean userIsOwner(Booking booking, long userId) {
+    private boolean userIsItemOwner(Booking booking, long userId) {
         return booking.getItem().getOwner().getId() == userId;
     }
 
@@ -175,7 +176,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void checkBookerIsNotOwner(Booking booking, long userId) {
-        if (userIsOwner(booking, userId)) {
+        if (userIsItemOwner(booking, userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")
@@ -185,7 +186,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void checkOwner(Booking booking, long userId) {
-        if (!userIsOwner(booking, userId)) {
+        if (!userIsItemOwner(booking, userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")
@@ -217,7 +218,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void checkUserAccessRights(Booking booking, long userId) {
-        if (!userIsOwner(booking, userId) && !userIsBooker(booking, userId)) {
+        if (!userIsItemOwner(booking, userId) && !userIsBooker(booking, userId)) {
             throw new UserWithoutAccessRightsException(ErrorResponse.builder()
                     .reason("Forbidden for this id")
                     .error("The user with id " + userId + " does not have access to this booking!")

@@ -2,11 +2,13 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.repository.BookingJpaRepository;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.common.utils.PageableUtility;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ItemWasNotBeRentedException;
 import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
@@ -15,10 +17,12 @@ import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.CommentJpaRepository;
-import ru.practicum.shareit.item.repository.ItemJpaRepository;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -30,13 +34,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final ItemJpaRepository itemRepository;
-    private final UserJpaRepository userRepository;
-    private final BookingJpaRepository bookingRepository;
-    private final CommentJpaRepository commentRepository;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final ItemRequestRepository requestRepository;
+    private final PageableUtility pageableUtility;
 
     @Override
     public Item addItem(Item item, long userId) {
+        if (item.getRequest() != null) {
+            item.setRequest(findRequest(item.getRequest().getId()));
+        }
         item.setOwner(findUser(userId));
         Item addedItem = itemRepository.save(item);
         log.info("add Item: an item with an id {} and owner id {} has been added. Item : {}.",
@@ -72,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
             return dto;
         }
 
-        List<Booking> bookings = bookingRepository.findBookingsByItemAndStatus(item, BookingStatus.APPROVED);
+        List<Booking> bookings = bookingRepository.findByItemAndStatus(item, BookingStatus.APPROVED);
 
         ItemExtraInfoDto dto = findLastAndNextBookingForItem(item, bookings, comments, itemMapper);
         log.info("get Item: a item with an id {} has been received. Item : {}.", item.getId(), dto);
@@ -81,12 +90,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemExtraInfoDto> getUserItems(long userId, ItemMapper itemMapper) {
+    public List<ItemExtraInfoDto> getUserItems(long userId, Integer from, Integer size, ItemMapper itemMapper) {
         User owner = findUser(userId);
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
 
-        List<Item> items = itemRepository.findByOwner(owner);
+        List<Item> items = itemRepository.findByOwnerOrderById(owner, pageable);
+
         List<Comment> comments = commentRepository.findByItemIn(items);
-        List<Booking> bookings = bookingRepository.findBookingsByItemInAndStatusOrderByItem(
+        List<Booking> bookings = bookingRepository.findByItemInAndStatusOrderByItem(
                 items, BookingStatus.APPROVED);
 
         Map<Item, List<Comment>> commentsByItem = comments.stream()
@@ -101,15 +112,17 @@ public class ItemServiceImpl implements ItemService {
                         commentsByItem.getOrDefault(i, List.of()),
                         itemMapper)
                 ).collect(Collectors.toList());
-        log.info("get user's Items: the list of items of the user with id {} has been received. List : {}.",
-                userId, extraInfoItems);
+        log.info("get user's Items: the list of items of the user with id {} has been received. List (size = {}) : {}.",
+                userId, extraInfoItems.size(), extraInfoItems);
         return extraInfoItems;
     }
 
     @Override
-    public List<Item> searchItems(String query) {
-        List<Item> items = itemRepository.search(query);
-        log.info("The list of items requested by query \"{}\" has been received. List {}.", query, items);
+    public List<Item> searchItems(String query, Integer from, Integer size) {
+        Pageable pageable = pageableUtility.getPageableFromArguments(from, size);
+        List<Item> items = itemRepository.searchByNameOrDescription(query, pageable);
+        log.info("The list of items requested by query \"{}\" has been received. List (size = {}) {}.",
+                query, items.size(), items);
         return items;
     }
 
@@ -147,6 +160,16 @@ public class ItemServiceImpl implements ItemService {
                         ErrorResponse.builder()
                                 .reason("Item repository")
                                 .error("Item with id " + itemId + " does not exist!")
+                                .build()
+                ));
+    }
+
+    private ItemRequest findRequest(long requestId) {
+        return requestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        ErrorResponse.builder()
+                                .reason("ItemRequest repository")
+                                .error("Request with id " + requestId + " does not exist!")
                                 .build()
                 ));
     }

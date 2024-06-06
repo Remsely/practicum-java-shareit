@@ -48,34 +48,41 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getCurrentUserBookings(
-            @RequestHeader("X-Sharer-User-id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") String state
-    ) {
-        log.info("GET /bookings?state={} (X-Sharer-User-id = {})", state, userId);
-        return bookingMapper.toDtoList(bookingService.getUserBookings(userId, castStateWithExceptionMapping(state)));
+    public List<BookingDto> getUserBookings(@RequestHeader("X-Sharer-User-id") Long userId,
+                                            @RequestParam(required = false, defaultValue = "ALL") String state,
+                                            @RequestParam(required = false) Integer from,
+                                            @RequestParam(required = false) Integer size) {
+        log.info("GET /bookings?state={}&from={}&size={} (X-Sharer-User-id = {})", state, from, size, userId);
+        return bookingMapper.toDtoList(
+                bookingService.getUserBookings(userId, castStateWithExceptionMapping(state), from, size)
+        );
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getCurrentUserItemsBookings(
-            @RequestHeader("X-Sharer-User-id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") String state
-    ) {
-        log.info("GET /bookings/owner?state={} (X-Sharer-User-id = {})", state, userId);
+    public List<BookingDto> getUserItemsBookings(@RequestHeader("X-Sharer-User-id") Long userId,
+                                                 @RequestParam(required = false, defaultValue = "ALL") String state,
+                                                 @RequestParam(required = false) Integer from,
+                                                 @RequestParam(required = false) Integer size) {
+        log.info("GET /bookings/owner?state={}&from={}&size={} (X-Sharer-User-id = {})", state, from, size, userId);
         return bookingMapper.toDtoList(bookingService.getUserItemsBookings(
-                userId, castStateWithExceptionMapping(state)));
+                userId, castStateWithExceptionMapping(state), from, size)
+        );
     }
 
     private void validateDates(LocalDateTime from, LocalDateTime to) {
         if (to.isBefore(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .error("The end date can't be earlier than the start date!").build());
+                    .error("The end date can't be earlier than the start date!")
+                    .build()
+            );
         }
         if (to.isEqual(from)) {
             throw new DatesValidationException(ErrorResponse.builder()
                     .reason("Booking dates")
-                    .error("The end date can't be equal to the start date!").build());
+                    .error("The end date can't be equal to the start date!")
+                    .build()
+            );
         }
     }
 
@@ -85,7 +92,8 @@ public class BookingController {
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStateException(ErrorResponse.builder()
                     .reason("State parameter")
-                    .error("Unknown state: " + state).build()
+                    .error("Unknown state: " + state)
+                    .build()
             );
         }
     }

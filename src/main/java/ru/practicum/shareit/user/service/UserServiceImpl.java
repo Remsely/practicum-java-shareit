@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserJpaRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserJpaRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public User addUser(User user) {
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getUsers() {
         List<User> users = userRepository.findAll();
-        log.info("get Users: a users list has been received. List : {}", users);
+        log.info("get Users: a users list has been received. List (size = {}) : {}", users.size(), users);
         return users;
     }
 
