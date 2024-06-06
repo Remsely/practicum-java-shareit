@@ -20,8 +20,8 @@ public class BookingController {
     private final BookingClient client;
 
     @PostMapping
-    public ResponseEntity<?> addBooking(@Valid @RequestBody BookingCreationDto bookingDto,
-                                        @RequestHeader("X-Sharer-User-id") Long userId) {
+    public ResponseEntity<?> postBooking(@Valid @RequestBody BookingCreationDto bookingDto,
+                                         @RequestHeader("X-Sharer-User-id") Long userId) {
         log.info("POST /bookings (X-Sharer-User-id = {}). Request body : {}", userId, bookingDto);
         validateDates(bookingDto.getStart(), bookingDto.getEnd());
         return client.postBooking(bookingDto, userId);
@@ -32,7 +32,7 @@ public class BookingController {
                                             @RequestHeader("X-Sharer-User-id") Long userId,
                                             @RequestParam Boolean approved) {
         log.info("PATCH /bookings/{}?approved={} (X-Sharer-User-id = {})", id, approved, userId);
-        return client.patchBooking(id, userId, approved);
+        return client.approveBooking(id, userId, approved);
     }
 
     @GetMapping("/{id}")

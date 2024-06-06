@@ -9,7 +9,6 @@ import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +20,7 @@ public class ItemRequestController {
     private final ItemRequestMapper requestMapper;
 
     @PostMapping
-    public ItemRequestDto postItemRequest(@Valid @RequestBody ItemRequestCreationDto dto,
+    public ItemRequestDto postItemRequest(@RequestBody ItemRequestCreationDto dto,
                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Post /requests (X-Sharer-User-id = {}). Request body : {}", userId, dto);
         ItemRequest request = requestMapper.toEntity(dto);

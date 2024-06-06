@@ -30,7 +30,7 @@ public class BookingClient extends BaseClient {
         return post("/", userId, dto);
     }
 
-    public ResponseEntity<?> patchBooking(long id, Long userId, Boolean approved) {
+    public ResponseEntity<?> approveBooking(long id, Long userId, Boolean approved) {
         Map<String, Object> params = Map.of("approved", approved);
         return patch("/" + id, userId, params);
     }
