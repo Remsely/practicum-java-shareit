@@ -27,6 +27,12 @@ public class PageableUtilityTest {
     }
 
     @ParameterizedTest
+    @MethodSource("testGetPageableFromArgumentsArguments")
+    public void testGetPageableFromArguments_NullArguments(Integer from, Integer size) {
+        assertEquals(pageableUtility.getPageableFromArguments(from, size), Pageable.unpaged());
+    }
+
+    @ParameterizedTest
     @CsvSource({
             "-1, 2",
             "2, 0",
@@ -35,12 +41,6 @@ public class PageableUtilityTest {
     public void testGetPageableFromArguments_FailArguments(Integer from, Integer size) {
         assertThrows(IllegalPageableArgumentsException.class, () ->
                 pageableUtility.getPageableFromArguments(from, size));
-    }
-
-    @ParameterizedTest
-    @MethodSource("testGetPageableFromArgumentsArguments")
-    public void testGetPageableFromArguments_NullArguments(Integer from, Integer size) {
-        assertEquals(pageableUtility.getPageableFromArguments(from, size), Pageable.unpaged());
     }
 
     @Test
