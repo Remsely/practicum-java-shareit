@@ -94,95 +94,6 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void testAddBooking_DatesNull() throws Exception {
-        BookingCreationDto dto = BookingCreationDto.builder().build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        dto = BookingCreationDto.builder()
-                .start(LocalDateTime.now().plusDays(2))
-                .build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        dto = BookingCreationDto.builder()
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testAddBooking_DatesInPast() throws Exception {
-        BookingCreationDto dto = BookingCreationDto.builder()
-                .start(LocalDateTime.now().minusDays(2))
-                .end(LocalDateTime.now().minusDays(1))
-                .build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        dto = BookingCreationDto.builder()
-                .start(LocalDateTime.now().minusDays(2))
-                .end(LocalDateTime.now().plusDays(2))
-                .build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testAddBooking_EndBeforeStart() throws Exception {
-        BookingCreationDto dto = BookingCreationDto.builder()
-                .start(LocalDateTime.now().plusDays(2))
-                .end(LocalDateTime.now().plusDays(1))
-                .build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testAddBooking_EndEqualsStart() throws Exception {
-        LocalDateTime time = LocalDateTime.now().plusDays(8);
-        BookingCreationDto dto = BookingCreationDto.builder()
-                .start(time)
-                .end(time)
-                .build();
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void testAddBooking_WithoutUser() throws Exception {
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(dto))
@@ -385,16 +296,6 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void testGetUserBookings_UnsupportedState() throws Exception {
-        mvc.perform(get("/bookings?state=unsupported")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isInternalServerError());
-    }
-
-    @Test
     public void testGetUserBookings_UserDoesNotExists() throws Exception {
         when(bookingService.getUserBookings(
                 Mockito.anyLong(),
@@ -445,16 +346,6 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testGetUserItemsBookings_UnsupportedState() throws Exception {
-        mvc.perform(get("/bookings/owner?state=unsupported")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isInternalServerError());
     }
 
     @Test

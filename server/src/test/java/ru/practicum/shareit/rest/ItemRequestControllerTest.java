@@ -73,21 +73,6 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    public void testPostRequest_BlankDescription() throws Exception {
-        ItemRequestCreationDto dto = ItemRequestCreationDto.builder()
-                .description("  ")
-                .build();
-
-        mvc.perform(post("/requests")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void testPostRequest_WithoutUser() throws Exception {
         ItemRequestCreationDto dto = ItemRequestCreationDto.builder()
                 .description("description")

@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.user.controller.UserController;
-import ru.practicum.shareit.user.dto.UserCreationDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -61,43 +60,13 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testPostUser_NameIsEmpty() throws Exception {
-        UserCreationDto dto = UserCreationDto.builder()
-                .name("  ")
-                .email("test@test.com")
-                .build();
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testPostUser_EmailIsNotValid() throws Exception {
-        UserCreationDto dto = UserCreationDto.builder()
-                .name("user")
-                .email("test")
-                .build();
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void testPostUser_Success() throws Exception {
-        UserCreationDto creationDto = UserCreationDto.builder()
+        UserDto creationDto = UserDto.builder()
                 .name("user")
                 .email("test@test.com")
                 .build();
 
-        when(userMapper.toEntity(Mockito.any(UserCreationDto.class)))
+        when(userMapper.toEntity(Mockito.any(UserDto.class)))
                 .thenReturn(user);
         when(userService.addUser(Mockito.any(User.class)))
                 .thenReturn(user);
@@ -113,21 +82,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(dto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(dto.getName())))
                 .andExpect(jsonPath("$.email", is(dto.getEmail())));
-    }
-
-    @Test
-    public void testUpdateUser_EmailIsNotValid() throws Exception {
-        UserDto dto = UserDto.builder()
-                .name("user")
-                .email("test")
-                .build();
-
-        mvc.perform(patch("/users/" + user.getId())
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -2,7 +2,6 @@ package ru.practicum.shareit.unit.mapper;
 
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -91,33 +90,6 @@ public class ItemMapperTest {
     @Test
     public void testToEntityFromItemDto() {
         ItemDto dto = ItemDto.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .available(true)
-                .build();
-
-        Item item = mapper.toEntity(dto);
-
-        assertThat(item.getId()).isEqualTo(dto.getId());
-        assertThat(item.getName()).isEqualTo(dto.getName());
-        assertThat(item.getDescription()).isEqualTo(dto.getDescription());
-        assertThat(item.getAvailable()).isEqualTo(dto.getAvailable());
-        assertThat(item.getRequest()).isNull();
-
-        dto.setRequestId(1L);
-        item = mapper.toEntity(dto);
-
-        assertThat(item.getId()).isEqualTo(dto.getId());
-        assertThat(item.getName()).isEqualTo(dto.getName());
-        assertThat(item.getDescription()).isEqualTo(dto.getDescription());
-        assertThat(item.getAvailable()).isEqualTo(dto.getAvailable());
-        assertThat(item.getRequest().getId()).isEqualTo(dto.getRequestId());
-    }
-
-    @Test
-    public void testToEntityFromItemCreationDto() {
-        ItemCreationDto dto = ItemCreationDto.builder()
                 .id(1L)
                 .name("name")
                 .description("description")

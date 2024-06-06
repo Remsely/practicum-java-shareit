@@ -29,23 +29,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDatesValidation(DatesValidationException e) {
-        ErrorResponse errorResponse = e.getErrorResponse();
-        log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
-        return errorResponse;
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUnavailableItem(UnavailableItemException e) {
-        ErrorResponse errorResponse = e.getErrorResponse();
-        log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
-        return errorResponse;
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleIllegalState(UnsupportedStateException e) {
         ErrorResponse errorResponse = e.getErrorResponse();
         log.warn("{} : {}", errorResponse.getReason(), errorResponse.getError());
         return errorResponse;

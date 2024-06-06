@@ -19,7 +19,6 @@ import ru.practicum.shareit.exception.UserWithoutAccessRightsException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemCreationDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemExtraInfoDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -112,56 +111,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void testAddItem_BlankName() throws Exception {
-        ItemCreationDto dto = ItemCreationDto.builder()
-                .name("  ")
-                .description("desc")
-                .available(false)
-                .build();
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testAddItem_BlankDescription() throws Exception {
-        ItemCreationDto dto = ItemCreationDto.builder()
-                .name("name")
-                .description("  ")
-                .available(false)
-                .build();
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testAddItem_AvailableIsNull() throws Exception {
-        ItemCreationDto dto = ItemCreationDto.builder()
-                .name("name")
-                .description("desc")
-                .available(null)
-                .build();
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     public void testAddItem_WithoutUser() throws Exception {
-        ItemCreationDto dto = ItemCreationDto.builder()
+        ItemDto dto = ItemDto.builder()
                 .name("name")
                 .description("desc")
                 .available(true)
@@ -176,14 +127,14 @@ public class ItemControllerTest {
 
     @Test
     public void testAddItem_UserOrRequestNotFound() throws Exception {
-        ItemCreationDto dto = ItemCreationDto.builder()
+        ItemDto dto = ItemDto.builder()
                 .name("name")
                 .description("desc")
                 .available(true)
                 .requestId(1L)
                 .build();
 
-        when(itemMapper.toEntity(Mockito.any(ItemCreationDto.class)))
+        when(itemMapper.toEntity(Mockito.any(ItemDto.class)))
                 .thenReturn(item);
         when(itemService.addItem(Mockito.any(Item.class), Mockito.anyLong()))
                 .thenThrow(new EntityNotFoundException(ErrorResponse.builder().build()));
@@ -199,13 +150,13 @@ public class ItemControllerTest {
 
     @Test
     public void testAddItem_Success() throws Exception {
-        ItemCreationDto creationDto = ItemCreationDto.builder()
+        ItemDto creationDto = ItemDto.builder()
                 .name("name")
                 .description("desc")
                 .available(true)
                 .build();
 
-        when(itemMapper.toEntity(Mockito.any(ItemCreationDto.class)))
+        when(itemMapper.toEntity(Mockito.any(ItemDto.class)))
                 .thenReturn(item);
         when(itemService.addItem(Mockito.any(Item.class), Mockito.anyLong()))
                 .thenReturn(item);
@@ -409,28 +360,6 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void testSearchItems_textIsBlank() throws Exception {
-        mvc.perform(get("/items/search?text=%20")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
-    }
-
-    @Test
-    public void testSearchItems_textIsEmpty() throws Exception {
-        mvc.perform(get("/items/search?text=")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
-    }
-
-    @Test
     public void testSearchItems_Success() throws Exception {
         when(itemService.searchItems(
                 Mockito.anyInt(),
@@ -454,20 +383,6 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].description", is(dto.getDescription())))
                 .andExpect(jsonPath("$[0].available", is(dto.getAvailable())))
                 .andExpect(jsonPath("$[0].requestId", is(dto.getRequestId())));
-    }
-
-    @Test
-    public void testAddComment_BlankText() throws Exception {
-        CommentDto dto = CommentDto.builder()
-                .text("  ")
-                .build();
-        mvc.perform(post("/items/" + item.getId() + "/comment")
-                        .content(mapper.writeValueAsString(dto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-id", user.getId().toString()))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

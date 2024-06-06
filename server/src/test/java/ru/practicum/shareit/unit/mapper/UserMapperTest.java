@@ -1,7 +1,6 @@
 package ru.practicum.shareit.unit.mapper;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.user.dto.UserCreationDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -31,21 +30,6 @@ public class UserMapperTest {
     @Test
     public void testToEntityFromUserDto() {
         UserDto dto = UserDto.builder()
-                .id(1L)
-                .name("name")
-                .email("email")
-                .build();
-
-        User entity = mapper.toEntity(dto);
-
-        assertThat(dto.getId()).isEqualTo(entity.getId());
-        assertThat(dto.getName()).isEqualTo(entity.getName());
-        assertThat(dto.getEmail()).isEqualTo(entity.getEmail());
-    }
-
-    @Test
-    public void testToEntityFromUserCreationDto() {
-        UserCreationDto dto = UserCreationDto.builder()
                 .id(1L)
                 .name("name")
                 .email("email")
