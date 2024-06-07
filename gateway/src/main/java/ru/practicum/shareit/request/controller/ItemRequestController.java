@@ -1,9 +1,11 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.request.service.ItemRequestClient;
+import ru.practicum.shareit.request.dto.ItemRequestCreationDto;
 
 import javax.validation.Valid;
 
