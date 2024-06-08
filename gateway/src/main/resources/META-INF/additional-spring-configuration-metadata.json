@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "shareit-server.url",
+      "type": "java.lang.String",
+      "description": "Server url."
+  }
+] }

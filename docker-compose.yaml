@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    environment:
+      - SHAREIT_SERVER_URL=http://server:9090
+
+  server:
+    build: ./server
+    ports:
+      - "9090:9090"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_NAME=shareit
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - DB_HOST=db
+      - DB_PORT=5432
+
+  db:
+    image: postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+
+volumes:
+  postgres_data:
